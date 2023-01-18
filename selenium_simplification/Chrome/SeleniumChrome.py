@@ -1475,3 +1475,11 @@ class SeleniumChrome(webdriver.Chrome):
 
     def is_visible(self, element: WebElement):
         return self.execute_script(is_visible_script, element)
+
+    def get_WebElement_parent(self, element: WebElement, tier: int = 1) -> WebElement:
+        def _get_WebElement_parent(element: WebElement) -> WebElement:
+            return element.find_element(XPATH, "..")
+
+        for i in range(tier):
+            element = _get_WebElement_parent(element)
+        return element
