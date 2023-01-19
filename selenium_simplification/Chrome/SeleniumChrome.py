@@ -390,7 +390,7 @@ class SeleniumChrome(webdriver.Chrome):
         The used user-agent
     """
 
-    log_types = ["browser", "client", "driver", "performance", "profiler", "server"]
+    standard_log_types = ["browser", "client", "driver", "performance", "profiler", "server"]
     """These log types can be aquied py driver.get_log(<log_type: str>) - types are: "browser", "client", "driver", "performance", "profiler", "server" """
 
     def __init__(
