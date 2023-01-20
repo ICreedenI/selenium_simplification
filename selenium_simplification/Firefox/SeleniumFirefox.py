@@ -18,7 +18,7 @@ from typing import Callable, Iterable
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
@@ -36,17 +36,28 @@ def get_from_json(path):
 
 
 file_parent = Path(__file__).parent
-SELENIUM_CHROME_CONFIG_PATH = os.path.join(file_parent, "config.json")
-"""Path to the config file wich allows you to permanently change the values of CHROMEDRIVER_PATH and CHROME_PROFILE_USER_DATA"""
-config_data = get_from_json(SELENIUM_CHROME_CONFIG_PATH)
-if config_data["CHROMEDRIVER_PATH"] == None:
-    CHROMEDRIVER_PATH = os.path.join(
-        file_parent, "chromedriver_win32", "chromedriver.exe"
-    )
+SELENIUM_FIREFOX_CONFIG_PATH = os.path.join(file_parent, "config.json")
+"""Path to the config file wich allows you to permanently change the values of GECKODRIVER_PATH and FIREFOX_PROFILE_USER_DATA"""
+config_data = get_from_json(SELENIUM_FIREFOX_CONFIG_PATH)
+if config_data["GECKODRIVER_PATH"] == None:
+    GECKODRIVER_PATH = os.path.join(file_parent, "geckodriver", "geckodriver.exe")
 else:
-    CHROMEDRIVER_PATH = config_data["CHROMEDRIVER_PATH"]
-CHROME_PROFILE_USER_DATA = config_data["CHROME_PROFILE_USER_DATA"]
-CHROME_PROFILE = "Profile 1"
+    GECKODRIVER_PATH = config_data["GECKODRIVER_PATH"]
+FIREFOX_PROFILE_USER_DATA = config_data["FIREFOX_PROFILE_USER_DATA"]
+try:
+    profiles = [
+        os.path.join(FIREFOX_PROFILE_USER_DATA, d)
+        for d in os.listdir(FIREFOX_PROFILE_USER_DATA)
+    ]
+    profile_to_mod_date = {}
+    for p in profiles:
+        profile_to_mod_date[p] = os.path.getmtime(p)
+    latest_profile = [
+        p for (p, d) in sorted(profile_to_mod_date.items(), key=lambda pair: pair[1])
+    ][-1]
+    FIREFOX_PROFILE = os.path.basename(latest_profile)
+except:
+    FIREFOX_PROFILE = "Profile 1"
 USER_AGENT = config_data["USER_AGENT"]
 
 
@@ -332,8 +343,8 @@ set_of_special_keycodes_lower = {
 }
 
 
-class SeleniumChrome(webdriver.Chrome):
-    """Creates a new instance of the chrome driver. Starts the service and then creates new instance of chrome driver. You could also use Selenium as is but I think this makes it easier.
+class SeleniumFirefox(webdriver.Firefox):
+    """Creates a new instance of the firefox driver. Starts the service and then creates new instance of firefox driver. You could also use Selenium as is but I think this makes it easier.
 
     Parameters
     ----------
@@ -361,9 +372,6 @@ class SeleniumChrome(webdriver.Chrome):
     profile : bool | str, optional, by default False
         Browser uses Profile 1 if True or defined user profile. False means no profile used at all
 
-    log_capabilities : bool, optional, by default False
-        Browser log capabilities
-
     page_load_strategy : str, optional, by default 'normal'
         Browser page load strategy:
 
@@ -376,18 +384,20 @@ class SeleniumChrome(webdriver.Chrome):
     extensions : tuple, optional, by default ()
         A tuple of paths to the .crx extension files. They will be installed right after launch.
 
-    chromedriver_path : str, optional, by default CHROMEDRIVER_PATH
-        You should have the driver for Chrome named as chromedriver.exe under the path CHROMEDRIVER_PATH.
-        Please update this file when needed or set the path in the config.json under CHROMEDRIVER_PATH to the correct location.
-        The path to the config.json is available under SELENIUM_CHROME_CONFIG_PATH.
+    firefoxdriver_path : str, optional, by default GECKODRIVER_PATH
+        You should have the driver for Firefox named as geckodriver.exe under the path GECKODRIVER_PATH.
+        Please update this file when needed or set the path in the config.json under GECKODRIVER_PATH to the correct location.
+        The path to the config.json is available under SELENIUM_FIREFOX_CONFIG_PATH.
         You can set the path to the driver manually here.
 
-    chrome_profile_user_data : str, optional, by default taken from "CHROME_PROFILE_USER_DATA" in the config.json
-        The path to the config.json is available under SELENIUM_CHROME_CONFIG_PATH.
-        Set the path to the directory of your Chrome application where all the user data directories can be found.
+    firefox_profile_user_data : str, optional, by default taken from "FIREFOX_PROFILE_USER_DATA" in the config.json
+        The path to the config.json is available under SELENIUM_FIREFOX_CONFIG_PATH.
+        Set the path to the directory of your Firefox application where all the user data directories can be found.
 
-    user_agent : str, optional, by default "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
+    user_agent : str, optional, by default "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Firefox/109.0.0.0 Safari/537.36"
         The used user-agent
+
+    log_capabilities are not supported with the geckodriver
     """
 
     standard_log_types = [
@@ -411,14 +421,13 @@ class SeleniumChrome(webdriver.Chrome):
         window_size: str = None,
         profile: bool | str = False,
         incognito: bool = False,
-        log_capabilities: bool = False,
         page_load_strategy: str = "normal",
         extensions: tuple = (),
-        chromedriver_path: str = CHROMEDRIVER_PATH,
-        chrome_profile_user_data: str = CHROME_PROFILE_USER_DATA,
+        firefoxdriver_path: str = GECKODRIVER_PATH,
+        firefox_profile_user_data: str = FIREFOX_PROFILE_USER_DATA,
         user_agent: str = USER_AGENT,
     ):
-        """Creates a new instance of the chrome driver. Starts the service and then creates new instance of chrome driver.
+        """Creates a new instance of the firefox driver. Starts the service and then creates new instance of firefox driver.
 
         Parameters
         ----------
@@ -446,9 +455,6 @@ class SeleniumChrome(webdriver.Chrome):
         profile : bool | str, optional, by default False
             Browser uses Profile 1 if True or defined user profile. False means no profile used at all
 
-        log_capabilities : bool, optional, by default False
-            Browser log capabilities
-
         page_load_strategy : str, optional, by default 'normal'
             Browser page load strategy:
 
@@ -461,40 +467,45 @@ class SeleniumChrome(webdriver.Chrome):
         extensions : tuple, optional, by default ()
             A tuple of paths to the .crx extension files. They will be installed right after launch.
 
-        chromedriver_path : str, optional, by default CHROMEDRIVER_PATH
-            You should have the driver for Chrome named as chromedriver.exe under the path CHROMEDRIVER_PATH.
+        firefoxdriver_path : str, optional, by default GECKODRIVER_PATH
+            You should have the driver for Firefox named as geckodriver.exe under the path GECKODRIVER_PATH.
             Please update this file when needed.
             You can set the path to the driver manually here.
 
-        chrome_profile_user_data : str, optional, by default taken from "CHROME_PROFILE_USER_DATA" in the config.json
-            The path to the config.json is available under SELENIUM_CHROME_CONFIG_PATH.
-            Set the path to the directory of your Chrome application where all the user data directories can be found.
+        firefox_profile_user_data : str, optional, by default taken from "FIREFOX_PROFILE_USER_DATA" in the config.json
+            The path to the config.json is available under SELENIUM_FIREFOX_CONFIG_PATH.
+            Set the path to the directory of your Firefox application where all the user data directories can be found.
 
-        user_agent : str, optional, by default "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
+        user_agent : str, optional, by default "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Firefox/109.0.0.0 Safari/537.36"
             The used user-agent
+
+        log_capabilities are not supported with the geckodriver
         """
         # executable_path=... # executable_path - Deprecated: path to the executable. If the default is used it assumes the executable is in the $PATH
         # port=... # port - Deprecated: port you would like the service to run, if left as 0, a free port will be found.
-        # chrome_options=None
+        # firefox_options=None
         # service_args=None # service_args - Deprecated: List of args to pass to the driver service
         # desired_capabilities=None # desired_capabilities - Deprecated: Dictionary object with non-browser specific capabilities only, such as "proxy" or "loggingPref".
         # service_log_path=... # service_log_path - Deprecated: Where to log information from the driver.
-        # _keep_alive=... # keep_alive - Deprecated: Whether to configure ChromeRemoteConnection to use HTTP keep-alive.
+        # _keep_alive=... # keep_alive - Deprecated: Whether to configure FirefoxRemoteConnection to use HTTP keep-alive.
 
         self.tabs = {}
         """Dictionary for tabs; first tab is called 'Tab_0' or 'main' or '0' or 0."""
-
-        caps = DesiredCapabilities.CHROME
-        options = webdriver.ChromeOptions()
-        options.add_argument(user_agent)
+        self.logs = ""
+        service = Service(firefoxdriver_path)
+        options = webdriver.FirefoxOptions()
+        # options.add_argument(user_agent)
+        options.set_preference(
+            "general.useragent.override", user_agent.split("user-agent=")[1]
+        )
         options.page_load_strategy = page_load_strategy
         if incognito:
             options.add_argument("--incognito")
         if profile != False:
-            use_profile = CHROME_PROFILE
+            use_profile = FIREFOX_PROFILE
             if profile != True:
                 use_profile = profile
-            options.add_argument("user-data-dir=" + chrome_profile_user_data)
+            options.add_argument("user-data-dir=" + firefox_profile_user_data)
             options.add_argument("profile-directory=" + use_profile)
         if window_size != None:
             options.add_argument(f"--window-size={window_size}")
@@ -509,21 +520,21 @@ class SeleniumChrome(webdriver.Chrome):
             options.add_argument("--mute-audio")
         if log_level_3:
             options.add_argument("--log-level=3")
-        if log_capabilities:
-            caps["goog:loggingPrefs"] = {"performance": "ALL"}
         for ext in extensions:
             options.add_extension(ext)
 
-        service = Service(chromedriver_path)
-
-        # super().__init__(executable_path, port, options, service_args, desired_capabilities, service_log_path, chrome_options, service, _keep_alive)
-        # super().__init__(port=port, options=options, service_args=service_args, desired_capabilities=desired_capabilities, service_log_path=service_log_path, chrome_options=chrome_options, service=service)
-        super().__init__(options=options, service=service, desired_capabilities=caps)
+        # super().__init__(executable_path, port, options, service_args, desired_capabilities, service_log_path, firefox_options, service, _keep_alive)
+        # super().__init__(port=port, options=options, service_args=service_args, desired_capabilities=desired_capabilities, service_log_path=service_log_path, firefox_options=firefox_options, service=service)
+        super().__init__(
+            options=options, service=service
+        )  # , desired_capabilities=caps)
 
         self.tabs["Tab_0"] = self.current_window_handle
         self.tabs["main"] = self.current_window_handle
         self.tabs["0"] = self.current_window_handle
         self.tabs[0] = self.current_window_handle
+
+        print(len(self.window_handles))
 
         def keep_driver_alive(driver):
             def isBrowserAlive(driver):
@@ -1508,3 +1519,9 @@ class SeleniumChrome(webdriver.Chrome):
                 or "Network.webSocket" in log["method"]
             ):
                 yield log
+
+
+if __name__ == "__main__":
+    driver = SeleniumFirefox()
+    # driver.get("https://google.com")
+    sleep(15)

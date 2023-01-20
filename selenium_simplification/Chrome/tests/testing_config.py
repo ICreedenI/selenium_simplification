@@ -8,6 +8,7 @@ def write_config_json():
     data = {
         "CHROME_PROFILE_USER_DATA": r"C:\Users\Creed\AppData\Local\Google\Chrome\User Data",
         "CHROMEDRIVER_PATH": None,
+        "USER_AGENT": "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
     }
     help_with_json.dump_as_json(
         data,
