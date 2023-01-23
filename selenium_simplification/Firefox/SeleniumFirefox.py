@@ -91,7 +91,7 @@ def timestamp():
 
 download_src = """
 var saveImg = document.createElement("a"); 
-saveImg.href = $src; 
+saveImg.href = "$src"; 
 saveImg.download = "$filename"; 
 saveImg.innerHTML = "Click to save image"; 
 saveImg.click();"""
