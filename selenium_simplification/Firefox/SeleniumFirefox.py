@@ -1505,20 +1505,7 @@ class SeleniumFirefox(webdriver.Firefox):
             element = _get_WebElement_parent(element)
         return element
 
-    def process_browser_logs_for_network_events(logs):
-        """
-        Return only logs which have a method that start with "Network.response", "Network.request", or "Network.webSocket"
-        since we're interested in the network events specifically.
-        Logs can be aquired like this: logs = driver.get_log("performance")
-        """
-        for entry in logs:
-            log = json.loads(entry["message"])["message"]
-            if (
-                "Network.response" in log["method"]
-                or "Network.request" in log["method"]
-                or "Network.webSocket" in log["method"]
-            ):
-                yield log
+
 
 
 if __name__ == "__main__":
