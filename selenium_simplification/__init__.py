@@ -10,6 +10,7 @@ from .Chrome.SeleniumChrome import (
     XPATH,
     CHROMEDRIVER_PATH,
     SELENIUM_CHROME_CONFIG_PATH,
+    WebElement,
 )
 from .Firefox.SeleniumFirefox import (
     SeleniumFirefox,

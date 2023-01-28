@@ -490,7 +490,7 @@ class SeleniumFirefox(webdriver.Firefox):
         # _keep_alive=... # keep_alive - Deprecated: Whether to configure FirefoxRemoteConnection to use HTTP keep-alive.
 
         self.tabs = {}
-        """Dictionary for tabs; first tab is called 'Tab_0' or 'main' or '0' or 0."""
+        """Dictionary for tabs; first tab is called 0."""
         self.logs = ""
         service = Service(firefoxdriver_path)
         options = webdriver.FirefoxOptions()
@@ -529,12 +529,9 @@ class SeleniumFirefox(webdriver.Firefox):
             options=options, service=service
         )  # , desired_capabilities=caps)
 
-        self.tabs["Tab_0"] = self.current_window_handle
-        self.tabs["main"] = self.current_window_handle
-        self.tabs["0"] = self.current_window_handle
         self.tabs[0] = self.current_window_handle
 
-        print(len(self.window_handles))
+        # print(len(self.window_handles))
 
         def keep_driver_alive(driver):
             def isBrowserAlive(driver):
@@ -786,26 +783,10 @@ class SeleniumFirefox(webdriver.Firefox):
                 if t not in tbs:
                     self.switch_to.window(t)
         if tab_name == None:
-            names = []
-            for tn in self.tabs:
-                names.append(tn)
-            numbs = []
-            for n in names:
-                try:
-                    if n.startswith("Tab_"):
-                        try:
-                            n = int(n.replace("Tab_"))
-                            numbs.append(n)
-                        except:
-                            pass
-                except:
-                    pass
-            if len(numbs) != 0:
-                numbs = sorted(numbs)
-                highest_numb = numbs[-1] + 1
-            else:
-                highest_numb = 1
-            tab_name = f"Tab_{highest_numb}"
+            n = 0
+            while n in self.tabs.keys():
+                n += 1
+            tab_name = n
         self.tabs[tab_name] = self.current_window_handle
         return tab_name
 
@@ -1505,10 +1486,61 @@ class SeleniumFirefox(webdriver.Firefox):
             element = _get_WebElement_parent(element)
         return element
 
+    def get_xpath_of_element_alpha_version(self, element: WebElement) -> str:
+        tags = [
+            element.tag_name,
+        ]
+        try:
+            parent = self.get_parent_of_element(element)
+            tags.append(parent.tag_name)
+            for i in range(100):
+                try:
+                    parent = self.get_parent_of_element(parent)
+                    tags.append(parent.tag_name)
+                except:
+                    break
+        except:
+            pass
+        xpath = "/".join(tags[::-1])
+        return xpath
 
+    def get_xpath_of_element_beta_version(self, element: WebElement) -> str:
+        tags = []
+        posi = []
+        try:
+            for i in range(1000):
+                try:
+                    try:
+                        child
+                        child = parent
+                    except:
+                        child = element
+                    parent = self.get_parent_of_element(child)
+                    # print(len(parent.find_elements(XPATH, f"./{child.tag_name}")))
+                    posi.append(len(parent.find_elements(XPATH, f"./{child.tag_name}")))
+                    tags.append(child.tag_name)
+                except:
+                    tags.append(parent.tag_name)
+                    posi.append(0)
+                    break
+        except:
+            pass
+        tags = tags[::-1]
+        posi = posi[::-1]
+        parts = []
+        for i, e in enumerate(tags):
+            p = posi[i]
+            if p > 1:
+                e += f"[{p}]"
+            parts.append(e)
+        xpath = "/".join(parts)
+        return xpath
+
+    def get_xpath_of_element(self, element: WebElement) -> str:
+        return self.get_xpath_of_element_beta_version(element)
 
 
 if __name__ == "__main__":
-    driver = SeleniumFirefox()
-    # driver.get("https://google.com")
+    driver_ = SeleniumFirefox()
+    # driver_.get("https://google.com")
     sleep(15)
