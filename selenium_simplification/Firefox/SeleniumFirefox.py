@@ -381,8 +381,8 @@ class SeleniumFirefox(webdriver.Firefox):
 
             \t- 'none':Does not block WebDriver at all
 
-    extensions : tuple, optional, by default ()
-        A tuple of paths to the .crx extension files. They will be installed right after launch.
+    for extensions :
+        call method install_addon with the path to the .xpi file ot install. The file can be downloaded by visiting the extenion website in a different browser.
 
     firefoxdriver_path : str, optional, by default GECKODRIVER_PATH
         You should have the driver for Firefox named as geckodriver.exe under the path GECKODRIVER_PATH.
@@ -422,7 +422,7 @@ class SeleniumFirefox(webdriver.Firefox):
         profile: bool | str = False,
         incognito: bool = False,
         page_load_strategy: str = "normal",
-        extensions: tuple = (),
+        # extensions: tuple = (),
         firefoxdriver_path: str = GECKODRIVER_PATH,
         firefox_profile_user_data: str = FIREFOX_PROFILE_USER_DATA,
         user_agent: str = USER_AGENT,
@@ -520,8 +520,8 @@ class SeleniumFirefox(webdriver.Firefox):
             options.add_argument("--mute-audio")
         if log_level_3:
             options.add_argument("--log-level=3")
-        for ext in extensions:
-            options.add_extension(ext)
+        # for ext in extensions:
+        #     self.install_addon(ext)
 
         # super().__init__(executable_path, port, options, service_args, desired_capabilities, service_log_path, firefox_options, service, _keep_alive)
         # super().__init__(port=port, options=options, service_args=service_args, desired_capabilities=desired_capabilities, service_log_path=service_log_path, firefox_options=firefox_options, service=service)
@@ -1539,6 +1539,12 @@ class SeleniumFirefox(webdriver.Firefox):
     def get_xpath_of_element(self, element: WebElement) -> str:
         return self.get_xpath_of_element_beta_version(element)
 
+    def close_all_tabs_except_tab_0(self):
+        for h in self.window_handles:
+            if h != self.tabs[0]: 
+                self.switch_to.window(h)
+                self.close()
+        self.switch_to.window(self.tabs[0])
 
 if __name__ == "__main__":
     driver_ = SeleniumFirefox()

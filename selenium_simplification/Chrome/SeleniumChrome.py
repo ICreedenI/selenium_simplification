@@ -1565,3 +1565,10 @@ class SeleniumChrome(webdriver.Chrome):
 
     def get_xpath_of_element(self, element: WebElement) -> str:
         return self.get_xpath_of_element_beta_version(element)
+
+    def close_all_tabs_except_tab_0(self):
+        for h in self.window_handles:
+            if h != self.tabs[0]: 
+                self.switch_to.window(h)
+                self.close()
+        self.switch_to.window(self.tabs[0])
