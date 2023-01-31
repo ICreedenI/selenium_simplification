@@ -1536,15 +1536,72 @@ class SeleniumFirefox(webdriver.Firefox):
         xpath = "/".join(parts)
         return xpath
 
+    def get_xpath_of_element_v3(self, element: WebElement) -> str:
+        tags = []
+        posi = []
+        try:
+            for i in range(1000):
+                try:
+                    try:
+                        child
+                        child = parent
+                    except:
+                        child = element
+                    parent = self.get_parent_of_element(child)
+                    # print(len(parent.find_elements(XPATH, f"./{child.tag_name}")))
+                    same_tags = parent.find_elements(XPATH, f"./{child.tag_name}")
+                    for sti, st in enumerate(same_tags):
+                        if st == child:
+                            posi.append(sti + 1)
+                    tags.append(child.tag_name)
+                except:
+                    tags.append(parent.tag_name)
+                    posi.append(0)
+                    break
+        except:
+            pass
+        tags = tags[::-1]
+        posi = posi[::-1]
+        parts = []
+        for i, e in enumerate(tags):
+            p = posi[i]
+            if p > 1:
+                e += f"[{p}]"
+            parts.append(e)
+        xpath = "/".join(parts)
+        return xpath
+
     def get_xpath_of_element(self, element: WebElement) -> str:
-        return self.get_xpath_of_element_beta_version(element)
+        return self.get_xpath_of_element_v3(element)
+
+    def get_xpath_of_element_no_positions(self, element: WebElement) -> str:
+        tags = []
+        try:
+            for i in range(1000):
+                try:
+                    try:
+                        child
+                        child = parent
+                    except:
+                        child = element
+                    parent = self.get_parent_of_element(child)
+                    tags.append(child.tag_name)
+                except:
+                    tags.append(parent.tag_name)
+                    break
+        except:
+            pass
+        tags = tags[::-1]
+        xpath = "/" + "/".join(tags)
+        return xpath
 
     def close_all_tabs_except_tab_0(self):
         for h in self.window_handles:
-            if h != self.tabs[0]: 
+            if h != self.tabs[0]:
                 self.switch_to.window(h)
                 self.close()
         self.switch_to.window(self.tabs[0])
+
 
 if __name__ == "__main__":
     driver_ = SeleniumFirefox()
