@@ -426,6 +426,7 @@ class SeleniumFirefox(webdriver.Firefox):
         firefoxdriver_path: str = GECKODRIVER_PATH,
         firefox_profile_user_data: str = FIREFOX_PROFILE_USER_DATA,
         user_agent: str = USER_AGENT,
+        download_directory: str = None,
     ):
         """Creates a new instance of the firefox driver. Starts the service and then creates new instance of firefox driver.
 
@@ -499,6 +500,11 @@ class SeleniumFirefox(webdriver.Firefox):
             "general.useragent.override", user_agent.split("user-agent=")[1]
         )
         options.page_load_strategy = page_load_strategy
+        if download_directory != None:
+            options.set_preference("browser.download.folderList", 2)
+            options.set_preference("browser.download.manager.showWhenStarting", False)
+            options.set_preference("browser.download.dir", download_directory)
+            options.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/x-gzip")
         if incognito:
             options.add_argument("--incognito")
         if profile != False:

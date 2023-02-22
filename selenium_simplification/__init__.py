@@ -11,6 +11,7 @@ from .Chrome.SeleniumChrome import (
     CHROMEDRIVER_PATH,
     SELENIUM_CHROME_CONFIG_PATH,
     WebElement,
+    Keys,
 )
 from .Firefox.SeleniumFirefox import (
     SeleniumFirefox,

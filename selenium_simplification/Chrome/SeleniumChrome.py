@@ -417,6 +417,7 @@ class SeleniumChrome(webdriver.Chrome):
         chromedriver_path: str = CHROMEDRIVER_PATH,
         chrome_profile_user_data: str = CHROME_PROFILE_USER_DATA,
         user_agent: str = USER_AGENT,
+        download_directory: str = None,
     ):
         """Creates a new instance of the chrome driver. Starts the service and then creates new instance of chrome driver.
 
@@ -486,8 +487,15 @@ class SeleniumChrome(webdriver.Chrome):
 
         caps = DesiredCapabilities.CHROME
         options = webdriver.ChromeOptions()
+        options.add_experimental_option(
+            "excludeSwitches", ["enable-logging"]
+        )  # remove a message similar to: DevTools listening on ws://127.0.0.1:52682/devtools/browser/3cdf4946-2e56-40bf-b3be-d8adddf4ef21
         options.add_argument(user_agent)
         options.page_load_strategy = page_load_strategy
+        
+        if download_directory != None:
+            prefs = {'download.default_directory' : download_directory}
+            options.add_experimental_option('prefs', prefs)
         if incognito:
             options.add_argument("--incognito")
         if profile != False:
