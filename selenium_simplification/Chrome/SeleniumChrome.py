@@ -13,8 +13,9 @@ import os
 from pathlib import Path
 from string import Template
 from threading import Thread
-from time import sleep, time
+from time import sleep, time, localtime
 from typing import Callable, Iterable
+import requests
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -58,6 +59,101 @@ LINK_TEXT = By.LINK_TEXT
 PARTIAL_LINK_TEXT = By.PARTIAL_LINK_TEXT
 TAG_NAME = By.TAG_NAME
 XPATH = By.XPATH
+
+
+class Zeit:
+    def __init__(self, point_of_time: float) -> None:
+        local = localtime(point_of_time)
+        self.absolute_time = point_of_time
+        self.year = local.tm_year
+        self.month = local.tm_mon
+        months_3c_eng = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ]
+        months_eng = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+        ]
+        self.month_3_characters_eng = months_3c_eng[local.tm_mon - 1]
+        self.month_name_eng = months_eng[local.tm_mon - 1]
+        self.years_day = local.tm_yday
+        self.months_day = local.tm_mday
+        self.weaks_day = local.tm_wday
+        week_3c_eng = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        week_eng = [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+        ]
+        self.weeks_day_3_characters_eng = week_3c_eng[local.tm_wday - 1]
+        self.weeks_day_name_eng = week_eng[local.tm_wday - 1]
+        self.hour = local.tm_hour
+        self.minute = local.tm_min
+        self.second = local.tm_sec
+        self.millisecond_not_rounded = point_of_time % 1 * 1000
+        self.millisecond = round(point_of_time % 1 * 1000)
+        self.european_date_without_0s = f"{self.months_day}.{self.month}.{self.year}"
+        self.time_string_24h_without_0s = f"{self.hour}:{self.minute}:{self.second}"
+        str_months_day, str_month = str(self.months_day), str(self.month)
+        while len(str_months_day) < 2:
+            str_months_day = "0" + str_months_day
+        while len(str_month) < 2:
+            str_month = "0" + str_month
+        self.european_date_with_0s = f"{str_months_day}.{str_month}.{self.year}"
+        str_hour, str_minute, str_second = (
+            str(self.hour),
+            str(self.minute),
+            str(self.second),
+        )
+        while len(str_hour) < 2:
+            str_hour = "0" + str_hour
+        while len(str_minute) < 2:
+            str_minute = "0" + str_minute
+        while len(str_second) < 2:
+            str_second = "0" + str_second
+        self.time_string_24h_with_0s = f"{str_hour}:{str_minute}:{str_second}"
+        """Stunde:Minute:Sekunde"""
+        self.stempel_1 = (
+            self.time_string_24h_with_0s + " - " + self.european_date_with_0s
+        )
+        """Stunde:Minute:Sekunde - Tag.Monat.Jahr"""
+        self.stempel_2 = (
+            f"{str_hour}.{str_minute}.{str_second}" + " - " + self.european_date_with_0s
+        )
+        """Stunde.Minute.Sekunde - Tag.Monat.Jahr"""
+        self.stempel_3 = (
+            self.european_date_with_0s + " - " + f"{str_hour}.{str_minute}.{str_second}"
+        )
+        """Tag.Monat.Jahr - Stunde.Minute.Sekunde"""
+        self.stempel_4 = f"{self.year}-{str_month}-{str_months_day} - {str_hour}-{str_minute}-{str_second}"
+        """Jahr-Monat-Tag - Stunde-Minute-Sekunde"""
+        self.stempel_5 = f"{self.year}-{str_month}-{str_months_day} - {str_hour}-{str_minute}-{str_second}-{self.millisecond}"
+        """Jahr-Monat-Tag - Stunde-Minute-Sekunde-Millisekunde"""
 
 
 def timestamp():
@@ -418,6 +514,7 @@ class SeleniumChrome(webdriver.Chrome):
         chrome_profile_user_data: str = CHROME_PROFILE_USER_DATA,
         user_agent: str = USER_AGENT,
         download_directory: str = None,
+        allow_multiple_downloads: bool = False,
     ):
         """Creates a new instance of the chrome driver. Starts the service and then creates new instance of chrome driver.
 
@@ -492,10 +589,16 @@ class SeleniumChrome(webdriver.Chrome):
         )  # remove a message similar to: DevTools listening on ws://127.0.0.1:52682/devtools/browser/3cdf4946-2e56-40bf-b3be-d8adddf4ef21
         options.add_argument(user_agent)
         options.page_load_strategy = page_load_strategy
-        
+        prefs = {}
         if download_directory != None:
-            prefs = {'download.default_directory' : download_directory}
-            options.add_experimental_option('prefs', prefs)
+            # prefs = {"download.default_directory": download_directory}
+            # options.add_experimental_option("prefs", prefs)
+            prefs["download.default_directory"] = download_directory
+        if allow_multiple_downloads:
+            prefs["profile.default_content_settings.popups"] = 0
+            prefs["profile.default_content_setting_values.automatic_downloads"] = 1
+            prefs["download.prompt_for_download"] = False
+        options.add_experimental_option("prefs", prefs)
         if incognito:
             options.add_argument("--incognito")
         if profile != False:
@@ -509,7 +612,8 @@ class SeleniumChrome(webdriver.Chrome):
         if window_position != None:
             options.add_argument(f"--window-position={window_position}")
         if headless:
-            options.add_argument("--headless")
+            # options.add_argument("--headless")
+            options.add_argument("--headless=new")
             options.add_argument("--disable-gpu")
         elif start_maximized:
             options.add_argument("–-start-maximized")
@@ -534,9 +638,9 @@ class SeleniumChrome(webdriver.Chrome):
         self.tabs[0] = self.current_window_handle
 
         def keep_driver_alive(driver):
-            def isBrowserAlive(driver):
+            def isBrowserAlive(driver: SeleniumChrome):
                 try:
-                    driver.title
+                    driver.window_handles
                     return True
                 except:
                     return False
@@ -1252,11 +1356,15 @@ class SeleniumChrome(webdriver.Chrome):
                     loop_time_correction = True
         return result
 
-    def process_browser_logs_for_network_events(self, logs):
+    def process_browser_logs_for_network_events(self, logs=None):
         """
         Return only logs which have a method that start with "Network.response", "Network.request", or "Network.webSocket"
         since we're interested in the network events specifically.
+
+        logs: logs = driver.get_log("performance")
         """
+        if logs == None:
+            logs = self.get_log("performance")
         for entry in logs:
             log = json.loads(entry["message"])["message"]
             if (
@@ -1470,7 +1578,8 @@ class SeleniumChrome(webdriver.Chrome):
         self, src: str, filename: str = "index.jpg", rename_to_timestamp: bool = False
     ):
         if rename_to_timestamp:
-            filename = timestamp() + "." + filename.split(".")[-1]
+            # filename = timestamp() + "." + filename.split(".")[-1]
+            filename = Zeit(time()).stempel_5 + "." + filename.split(".")[-1]
         s = Template(download_src)
         script = s.substitute(src=src, filename=filename)
         self.execute_script(script)
@@ -1479,7 +1588,8 @@ class SeleniumChrome(webdriver.Chrome):
         self, xpath: str, filename: str = "index.jpg", rename_to_timestamp: bool = False
     ):
         if rename_to_timestamp:
-            filename = timestamp() + "." + filename.split(".")[-1]
+            # filename = timestamp() + "." + filename.split(".")[-1]
+            filename = Zeit(time()).stempel_5 + "." + filename.split(".")[-1]
         s = Template(download_blob_src_by_xpath_script_template)
         script = s.substitute(xpath=xpath, filename=filename)
         self.execute_script(script)
@@ -1637,3 +1747,20 @@ class SeleniumChrome(webdriver.Chrome):
                 self.switch_to.window(h)
                 self.close()
         self.switch_to.window(self.tabs[0])
+
+    def get_CookieJar(self, cookies=None):
+        if cookies == None:
+            cookies = self.get_cookies()
+        c_jar = requests.cookies.RequestsCookieJar()
+        for cookie in cookies:
+            c_jar.set(
+                cookie["name"],
+                cookie["value"],
+                domain=cookie["domain"],
+                path=cookie["path"],
+            )
+        return c_jar
+
+
+if __name__ == "__main__":
+    driver = SeleniumChrome(keep_alive=True)

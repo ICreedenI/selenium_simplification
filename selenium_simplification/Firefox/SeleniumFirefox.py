@@ -427,6 +427,7 @@ class SeleniumFirefox(webdriver.Firefox):
         firefox_profile_user_data: str = FIREFOX_PROFILE_USER_DATA,
         user_agent: str = USER_AGENT,
         download_directory: str = None,
+        log_level_trace: bool = False,
     ):
         """Creates a new instance of the firefox driver. Starts the service and then creates new instance of firefox driver.
 
@@ -480,7 +481,7 @@ class SeleniumFirefox(webdriver.Firefox):
         user_agent : str, optional, by default "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Firefox/109.0.0.0 Safari/537.36"
             The used user-agent
 
-        log_capabilities are not supported with the geckodriver
+        log_level_trace -> trace logs in 'geckodriver.log' file in current working directory (https://firefox-source-docs.mozilla.org/testing/geckodriver/TraceLogs.html#python)
         """
         # executable_path=... # executable_path - Deprecated: path to the executable. If the default is used it assumes the executable is in the $PATH
         # port=... # port - Deprecated: port you would like the service to run, if left as 0, a free port will be found.
@@ -504,7 +505,11 @@ class SeleniumFirefox(webdriver.Firefox):
             options.set_preference("browser.download.folderList", 2)
             options.set_preference("browser.download.manager.showWhenStarting", False)
             options.set_preference("browser.download.dir", download_directory)
-            options.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/x-gzip")
+            options.set_preference(
+                "browser.helperApps.neverAsk.saveToDisk", "application/x-gzip"
+            )
+        if log_level_trace:
+            options.log.level = "trace"
         if incognito:
             options.add_argument("--incognito")
         if profile != False:
@@ -540,9 +545,9 @@ class SeleniumFirefox(webdriver.Firefox):
         # print(len(self.window_handles))
 
         def keep_driver_alive(driver):
-            def isBrowserAlive(driver):
+            def isBrowserAlive(driver: SeleniumFirefox):
                 try:
-                    driver.title
+                    driver.window_handles
                     return True
                 except:
                     return False
@@ -1610,6 +1615,4 @@ class SeleniumFirefox(webdriver.Firefox):
 
 
 if __name__ == "__main__":
-    driver_ = SeleniumFirefox()
-    # driver_.get("https://google.com")
-    sleep(15)
+    driver = SeleniumFirefox(keep_alive=True)
