@@ -887,42 +887,6 @@ class SeleniumChrome(webdriver.Chrome):
                 if t not in tbs:
                     self.switch_to.window(t)
         if tab_name == None:
-            names = []
-            for tn in self.tabs:
-                names.append(tn)
-            numbs = []
-            for n in names:
-                try:
-                    if n.startswith("Tab_"):
-                        try:
-                            n = int(n.replace("Tab_"))
-                            numbs.append(n)
-                        except:
-                            pass
-                except:
-                    pass
-            if len(numbs) != 0:
-                numbs = sorted(numbs)
-                highest_numb = numbs[-1] + 1
-            else:
-                highest_numb = 1
-            tab_name = f"Tab_{highest_numb}"
-        self.tabs[tab_name] = self.current_window_handle
-        return tab_name
-
-    def open_new_tab(self, tab_name: str = None):
-        """Create a new tab and switches to it and adds it to self.tabs.
-        Returns the tabs name for self.tabs.
-        """
-        try:
-            self.switch_to.new_window("tab")
-        except:
-            tbs = [] + self.window_handles
-            self.execute_script("window.open('about:blank','_blank');")
-            for t in self.window_handles:
-                if t not in tbs:
-                    self.switch_to.window(t)
-        if tab_name == None:
             n = 0
             while n in self.tabs.keys():
                 n += 1

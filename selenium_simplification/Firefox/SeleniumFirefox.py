@@ -15,6 +15,7 @@ from string import Template
 from threading import Thread
 from time import sleep, time
 from typing import Callable, Iterable
+import requests
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -1612,6 +1613,19 @@ class SeleniumFirefox(webdriver.Firefox):
                 self.switch_to.window(h)
                 self.close()
         self.switch_to.window(self.tabs[0])
+
+    def get_CookieJar(self, cookies=None):
+        if cookies == None:
+            cookies = self.get_cookies()
+        c_jar = requests.cookies.RequestsCookieJar()
+        for cookie in cookies:
+            c_jar.set(
+                cookie["name"],
+                cookie["value"],
+                domain=cookie["domain"],
+                path=cookie["path"],
+            )
+        return c_jar
 
 
 if __name__ == "__main__":
