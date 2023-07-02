@@ -25,6 +25,10 @@ from .Firefox.SeleniumFirefox import (
     XPATH,
     GECKODRIVER_PATH,
     SELENIUM_FIREFOX_CONFIG_PATH,
+    WebElement,
+    Keys,
 )
+from .UndetectedChrome.SeleniumChrome import SeleniumChrome as UndetectedSeleniumChrome
+
 
 __version__ = "0.0.0"

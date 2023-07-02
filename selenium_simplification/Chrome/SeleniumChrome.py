@@ -607,6 +607,8 @@ class SeleniumChrome(webdriver.Chrome):
                 use_profile = profile
             options.add_argument("user-data-dir=" + chrome_profile_user_data)
             options.add_argument("profile-directory=" + use_profile)
+            options.add_argument("--user-data-dir=" + chrome_profile_user_data)
+            options.add_argument("--profile-directory=" + use_profile)
         if window_size != None:
             options.add_argument(f"--window-size={window_size}")
         if window_position != None:
