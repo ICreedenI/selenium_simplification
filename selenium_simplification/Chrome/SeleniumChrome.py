@@ -625,6 +625,7 @@ class SeleniumChrome(webdriver.Chrome):
             options.add_argument("--log-level=3")
         if log_capabilities:
             caps["goog:loggingPrefs"] = {"performance": "ALL"}
+            options.add_argument("--log-capabilities", "ALL")
         for ext in extensions:
             options.add_extension(ext)
 
@@ -632,7 +633,8 @@ class SeleniumChrome(webdriver.Chrome):
 
         # super().__init__(executable_path, port, options, service_args, desired_capabilities, service_log_path, chrome_options, service, _keep_alive)
         # super().__init__(port=port, options=options, service_args=service_args, desired_capabilities=desired_capabilities, service_log_path=service_log_path, chrome_options=chrome_options, service=service)
-        super().__init__(options=options, service=service, desired_capabilities=caps)
+        # super().__init__(options=options, service=service, desired_capabilities=caps)
+        super().__init__(options=options, service=service)
 
         # self.tabs["Tab_0"] = self.current_window_handle
         # self.tabs["main"] = self.current_window_handle
