@@ -429,6 +429,7 @@ class SeleniumFirefox(webdriver.Firefox):
         user_agent: str = USER_AGENT,
         download_directory: str = None,
         log_level_trace: bool = False,
+        no_driver: bool = True,
     ):
         """Creates a new instance of the firefox driver. Starts the service and then creates new instance of firefox driver.
 
@@ -496,6 +497,7 @@ class SeleniumFirefox(webdriver.Firefox):
         """Dictionary for tabs; first tab is called 0."""
         self.logs = ""
         service = Service(firefoxdriver_path)
+        if no_driver: service = Service()
         options = webdriver.FirefoxOptions()
         # options.add_argument(user_agent)
         options.set_preference(

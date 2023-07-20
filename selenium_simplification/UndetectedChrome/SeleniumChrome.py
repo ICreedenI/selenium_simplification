@@ -534,7 +534,8 @@ class SeleniumChrome(uc.Chrome):
         for ext in extensions:
             options.add_extension(ext)
 
-        service = Service(chromedriver_path)
+        # service = Service(chromedriver_path)
+        service = Service()
 
         # super().__init__(executable_path, port, options, service_args, desired_capabilities, service_log_path, chrome_options, service, _keep_alive)
         # super().__init__(port=port, options=options, service_args=service_args, desired_capabilities=desired_capabilities, service_log_path=service_log_path, chrome_options=chrome_options, service=service)
@@ -3030,5 +3031,8 @@ class SeleniumChrome_testing(uc.Chrome):
 
 
 if __name__ == "__main__":
-    pass
+    driver = SeleniumChrome()
+    driver.get("https://google.com")
+    sleep(10)
+    driver.quit()
 

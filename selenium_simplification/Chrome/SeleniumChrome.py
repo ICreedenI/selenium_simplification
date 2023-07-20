@@ -515,6 +515,8 @@ class SeleniumChrome(webdriver.Chrome):
         user_agent: str = USER_AGENT,
         download_directory: str = None,
         allow_multiple_downloads: bool = False,
+        proxy: str = None,
+        undetected: bool = False,
     ):
         """Creates a new instance of the chrome driver. Starts the service and then creates new instance of chrome driver.
 
@@ -570,6 +572,15 @@ class SeleniumChrome(webdriver.Chrome):
 
         user_agent : str, optional, by default "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
             The used user-agent
+        
+        download_directory : str, otional, by default None
+
+        allow_multiple_downloads : bool, otional, by default False
+
+        proxy : str, otional, by default None
+            "IpOfTheProxy:PORT"
+        
+        undetected : bool, optional, by default False
         """
         # executable_path=... # executable_path - Deprecated: path to the executable. If the default is used it assumes the executable is in the $PATH
         # port=... # port - Deprecated: port you would like the service to run, if left as 0, a free port will be found.
@@ -625,11 +636,25 @@ class SeleniumChrome(webdriver.Chrome):
             options.add_argument("--log-level=3")
         if log_capabilities:
             caps["goog:loggingPrefs"] = {"performance": "ALL"}
-            options.add_argument("--log-capabilities", "ALL")
+            # options.add_argument("--log-capabilities", "ALL")
+            options.add_argument("--log-capabilities=ALL")
+        if proxy != None:
+            options.add_argument(f"--proxy-server{proxy}") 
+        if undetected:
+            # Adding argument to disable the AutomationControlled flag 
+            options.add_argument("--disable-blink-features=AutomationControlled") 
+            
+            # Exclude the collection of enable-automation switches 
+            options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
+            
+            # Turn-off userAutomationExtension 
+            options.add_experimental_option("useAutomationExtension", False) 
+
         for ext in extensions:
             options.add_extension(ext)
 
-        service = Service(chromedriver_path)
+        # service = Service(chromedriver_path)
+        service = Service()
 
         # super().__init__(executable_path, port, options, service_args, desired_capabilities, service_log_path, chrome_options, service, _keep_alive)
         # super().__init__(port=port, options=options, service_args=service_args, desired_capabilities=desired_capabilities, service_log_path=service_log_path, chrome_options=chrome_options, service=service)
