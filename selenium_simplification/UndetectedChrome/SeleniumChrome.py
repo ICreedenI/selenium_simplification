@@ -3016,6 +3016,19 @@ class SeleniumChrome_testing(uc.Chrome):
                 self.close()
         self.switch_to.window(self.tabs[0])
 
+    def close_all_tabs_except_tab_x(self, tab_x):
+        for h in self.window_handles:
+            if h != tab_x:
+                self.switch_to.window(h)
+                self.close()
+        self.switch_to.window(tab_x)
+
+    def switch_to_window(self, window):
+        self.switch_to.window(window)
+
+    def switch_to_window_0(self):
+        self.switch_to.window(self.window_handles[0])
+
     def get_CookieJar(self, cookies=None):
         if cookies == None:
             cookies = self.get_cookies()

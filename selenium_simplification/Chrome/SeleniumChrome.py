@@ -181,6 +181,12 @@ saveImg.download = "$filename";
 saveImg.innerHTML = "Click to save image"; 
 saveImg.click();"""
 
+click_link_templ = """
+var saveImg = document.createElement("a"); 
+saveImg.href = "$src"; 
+saveImg.innerHTML = "Click to save image"; 
+saveImg.click();"""
+
 download_blob_src_by_xpath_script_template = """
 function getElementByXpath(path) {
     return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
@@ -517,6 +523,7 @@ class SeleniumChrome(webdriver.Chrome):
         allow_multiple_downloads: bool = False,
         proxy: str = None,
         undetected: bool = False,
+        disable_gpu: bool = False,
     ):
         """Creates a new instance of the chrome driver. Starts the service and then creates new instance of chrome driver.
 
@@ -625,8 +632,14 @@ class SeleniumChrome(webdriver.Chrome):
         if window_position != None:
             options.add_argument(f"--window-position={window_position}")
         if headless:
-            # options.add_argument("--headless")
-            options.add_argument("--headless=new")
+            if headless == "old":
+                options.add_argument("--headless=old")
+            elif headless == "headless":
+                options.add_argument("--headless")
+            else:
+                options.add_argument("--headless=new")
+            disable_gpu = True
+        if disable_gpu:
             options.add_argument("--disable-gpu")
         elif start_maximized:
             options.add_argument("–-start-maximized")
@@ -635,8 +648,9 @@ class SeleniumChrome(webdriver.Chrome):
         if log_level_3:
             options.add_argument("--log-level=3")
         if log_capabilities:
-            caps["goog:loggingPrefs"] = {"performance": "ALL"}
+            # caps["goog:loggingPrefs"] = {"performance": "ALL"}
             # options.add_argument("--log-capabilities", "ALL")
+            options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
             options.add_argument("--log-capabilities=ALL")
         if proxy != None:
             options.add_argument(f"--proxy-server{proxy}") 
@@ -653,8 +667,10 @@ class SeleniumChrome(webdriver.Chrome):
         for ext in extensions:
             options.add_extension(ext)
 
-        # service = Service(chromedriver_path)
-        service = Service()
+        if chromedriver_path:
+            service = Service(chromedriver_path)
+        else:
+            service = Service()
 
         # super().__init__(executable_path, port, options, service_args, desired_capabilities, service_log_path, chrome_options, service, _keep_alive)
         # super().__init__(port=port, options=options, service_args=service_args, desired_capabilities=desired_capabilities, service_log_path=service_log_path, chrome_options=chrome_options, service=service)
@@ -1416,22 +1432,24 @@ class SeleniumChrome(webdriver.Chrome):
 
     def wait_for_element_improvised(
         self,
-        tag: str,
         by: str = XPATH,
+        tag: str = None,
         timeout: float = 10,
         raise_Exception: bool = False,
     ) -> WebElement | None:
         """Winged version, baased on trial and error. The driver should wait until the element is found. I still have some trouble with this one.
 
         Args:
-            tag (str | WebElement): Identification like xpath or the element itself.
             by (str, optional): No need to use xpath if you don't want to. Defaults to XPATH.
+            tag (str | WebElement): Identification like xpath or the element itself.
             timeout (float, optional): Wait max this in seconds. Defaults to 10.
             raise_Exception (bool, optional): On timeout you can have an exception, if you want to. Defaults to False.
 
         Returns:
             WebElement | None: It should return the WebElement but often times it doesn't ... I don't know why, since I didn't want to look at WebDriverWait too much.
         """
+        if tag == XPATH:
+            tag, by = by, tag
 
         def task():
             try:
@@ -1575,6 +1593,14 @@ class SeleniumChrome(webdriver.Chrome):
             filename = Zeit(time()).stempel_5 + "." + filename.split(".")[-1]
         s = Template(download_src)
         script = s.substitute(src=src, filename=filename)
+        self.execute_script(script)
+
+    def click_link(
+        self, link: str
+    ):
+        filename = Zeit(time()).stempel_5 + "." + filename.split(".")[-1]
+        s = Template(click_link_templ)
+        script = s.substitute(src=link, filename=filename)
         self.execute_script(script)
 
     def download_blob_src_by_xpath(
@@ -1740,6 +1766,19 @@ class SeleniumChrome(webdriver.Chrome):
                 self.switch_to.window(h)
                 self.close()
         self.switch_to.window(self.tabs[0])
+
+    def close_all_tabs_except_tab_x(self, tab_x):
+        for h in self.window_handles:
+            if h != tab_x:
+                self.switch_to.window(h)
+                self.close()
+        self.switch_to.window(tab_x)
+
+    def switch_to_window(self, window):
+        self.switch_to.window(window)
+
+    def switch_to_window_0(self):
+        self.switch_to.window(self.window_handles[0])
 
     def get_CookieJar(self, cookies=None):
         if cookies == None:
