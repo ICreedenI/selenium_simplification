@@ -516,7 +516,8 @@ class SeleniumChrome(webdriver.Chrome):
         log_capabilities: bool = False,
         page_load_strategy: str = "normal",
         extensions: tuple = (),
-        chromedriver_path: str = CHROMEDRIVER_PATH,
+        # chromedriver_path: str = CHROMEDRIVER_PATH,
+        chromedriver_path: str = None,
         chrome_profile_user_data: str = CHROME_PROFILE_USER_DATA,
         user_agent: str = USER_AGENT,
         download_directory: str = None,
@@ -648,8 +649,6 @@ class SeleniumChrome(webdriver.Chrome):
         if log_level_3:
             options.add_argument("--log-level=3")
         if log_capabilities:
-            # caps["goog:loggingPrefs"] = {"performance": "ALL"}
-            # options.add_argument("--log-capabilities", "ALL")
             options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
             options.add_argument("--log-capabilities=ALL")
         if proxy != None:
@@ -663,6 +662,7 @@ class SeleniumChrome(webdriver.Chrome):
             
             # Turn-off userAutomationExtension 
             options.add_experimental_option("useAutomationExtension", False) 
+        options.add_argument(f"--disable-web-security") 
 
         for ext in extensions:
             options.add_extension(ext)
@@ -672,14 +672,8 @@ class SeleniumChrome(webdriver.Chrome):
         else:
             service = Service()
 
-        # super().__init__(executable_path, port, options, service_args, desired_capabilities, service_log_path, chrome_options, service, _keep_alive)
-        # super().__init__(port=port, options=options, service_args=service_args, desired_capabilities=desired_capabilities, service_log_path=service_log_path, chrome_options=chrome_options, service=service)
-        # super().__init__(options=options, service=service, desired_capabilities=caps)
         super().__init__(options=options, service=service)
 
-        # self.tabs["Tab_0"] = self.current_window_handle
-        # self.tabs["main"] = self.current_window_handle
-        # self.tabs["0"] = self.current_window_handle
         self.tabs[0] = self.current_window_handle
 
         def keep_driver_alive(driver):

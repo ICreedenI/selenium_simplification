@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: selenium-simplification
-Version: 0.0.4
+Version: 0.0.5
 Summary: Make Selenium simple. Using Selenium in a pythonic style without having to google how to do non-trivial stuff.
 Author: André Herber
 Author-email: andre.herber.programming@gmail.com
