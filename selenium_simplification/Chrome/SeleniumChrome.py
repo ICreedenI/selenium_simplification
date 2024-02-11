@@ -1430,6 +1430,7 @@ class SeleniumChrome(webdriver.Chrome):
         tag: str = None,
         timeout: float = 10,
         raise_Exception: bool = False,
+        return_timeout: bool = False,
     ) -> WebElement | None:
         """Winged version, baased on trial and error. The driver should wait until the element is found. I still have some trouble with this one.
 
@@ -1438,6 +1439,7 @@ class SeleniumChrome(webdriver.Chrome):
             tag (str | WebElement): Identification like xpath or the element itself.
             timeout (float, optional): Wait max this in seconds. Defaults to 10.
             raise_Exception (bool, optional): On timeout you can have an exception, if you want to. Defaults to False.
+            return_timeout (bool, optional): On timeout return the string 'timeout'. Defaults to False.
 
         Returns:
             WebElement | None: It should return the WebElement but often times it doesn't ... I don't know why, since I didn't want to look at WebDriverWait too much.
@@ -1454,11 +1456,16 @@ class SeleniumChrome(webdriver.Chrome):
 
         start = time()
         element = task()
-        while element == None and time() - start < timeout:
+        while element == None:
+            if time() - start > timeout:
+                break
             element = task()
-        if element == None and raise_Exception:
+        if element:
+            return element
+        elif element == None and raise_Exception:
             raise NoSuchElementException
-        return element
+        elif time() - start > timeout and return_timeout:
+            return "timeout"
 
     def wait_for_clickable(
         self,
