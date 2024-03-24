@@ -62,6 +62,101 @@ TAG_NAME = By.TAG_NAME
 XPATH = By.XPATH
 
 
+class Zeit:
+    def __init__(self, point_of_time: float) -> None:
+        local = localtime(point_of_time)
+        self.absolute_time = point_of_time
+        self.year = local.tm_year
+        self.month = local.tm_mon
+        months_3c_eng = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ]
+        months_eng = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+        ]
+        self.month_3_characters_eng = months_3c_eng[local.tm_mon - 1]
+        self.month_name_eng = months_eng[local.tm_mon - 1]
+        self.years_day = local.tm_yday
+        self.months_day = local.tm_mday
+        self.weaks_day = local.tm_wday
+        week_3c_eng = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        week_eng = [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+        ]
+        self.weeks_day_3_characters_eng = week_3c_eng[local.tm_wday - 1]
+        self.weeks_day_name_eng = week_eng[local.tm_wday - 1]
+        self.hour = local.tm_hour
+        self.minute = local.tm_min
+        self.second = local.tm_sec
+        self.millisecond_not_rounded = point_of_time % 1 * 1000
+        self.millisecond = round(point_of_time % 1 * 1000)
+        self.european_date_without_0s = f"{self.months_day}.{self.month}.{self.year}"
+        self.time_string_24h_without_0s = f"{self.hour}:{self.minute}:{self.second}"
+        str_months_day, str_month = str(self.months_day), str(self.month)
+        while len(str_months_day) < 2:
+            str_months_day = "0" + str_months_day
+        while len(str_month) < 2:
+            str_month = "0" + str_month
+        self.european_date_with_0s = f"{str_months_day}.{str_month}.{self.year}"
+        str_hour, str_minute, str_second = (
+            str(self.hour),
+            str(self.minute),
+            str(self.second),
+        )
+        while len(str_hour) < 2:
+            str_hour = "0" + str_hour
+        while len(str_minute) < 2:
+            str_minute = "0" + str_minute
+        while len(str_second) < 2:
+            str_second = "0" + str_second
+        self.time_string_24h_with_0s = f"{str_hour}:{str_minute}:{str_second}"
+        """Stunde:Minute:Sekunde"""
+        self.stempel_1 = (
+            self.time_string_24h_with_0s + " - " + self.european_date_with_0s
+        )
+        """Stunde:Minute:Sekunde - Tag.Monat.Jahr"""
+        self.stempel_2 = (
+            f"{str_hour}.{str_minute}.{str_second}" + " - " + self.european_date_with_0s
+        )
+        """Stunde.Minute.Sekunde - Tag.Monat.Jahr"""
+        self.stempel_3 = (
+            self.european_date_with_0s + " - " + f"{str_hour}.{str_minute}.{str_second}"
+        )
+        """Tag.Monat.Jahr - Stunde.Minute.Sekunde"""
+        self.stempel_4 = f"{self.year}-{str_month}-{str_months_day} - {str_hour}-{str_minute}-{str_second}"
+        """Jahr-Monat-Tag - Stunde-Minute-Sekunde"""
+        self.stempel_5 = f"{self.year}-{str_month}-{str_months_day} - {str_hour}-{str_minute}-{str_second}-{self.millisecond}"
+        """Jahr-Monat-Tag - Stunde-Minute-Sekunde-Millisekunde"""
+
+
 def timestamp():
     """Get timestamp
 
@@ -84,6 +179,12 @@ download_src = """
 var saveImg = document.createElement("a"); 
 saveImg.href = "$src"; 
 saveImg.download = "$filename"; 
+saveImg.innerHTML = "Click to save image"; 
+saveImg.click();"""
+
+click_link_templ = """
+var saveImg = document.createElement("a"); 
+saveImg.href = "$src"; 
 saveImg.innerHTML = "Click to save image"; 
 saveImg.click();"""
 
@@ -334,7 +435,7 @@ set_of_special_keycodes_lower = {
 }
 
 
-class SeleniumChrome(uc.Chrome):
+class UndetectedSeleniumChrome_old(uc.Chrome):
     """Creates a new instance of the chrome driver. Starts the service and then creates new instance of chrome driver. You could also use Selenium as is but I think this makes it easier.
 
     Parameters
@@ -549,7 +650,7 @@ class SeleniumChrome(uc.Chrome):
         self.tabs[0] = self.current_window_handle
 
         def keep_driver_alive(driver):
-            def isBrowserAlive(driver: SeleniumChrome):
+            def isBrowserAlive(driver: UndetectedSeleniumChrome):
                 try:
                     driver.window_handles
                     return True
@@ -1637,102 +1738,7 @@ class SeleniumChrome(uc.Chrome):
         return c_jar
 
 
-class Zeit:
-    def __init__(self, point_of_time: float) -> None:
-        local = localtime(point_of_time)
-        self.absolute_time = point_of_time
-        self.year = local.tm_year
-        self.month = local.tm_mon
-        months_3c_eng = [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
-        ]
-        months_eng = [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December",
-        ]
-        self.month_3_characters_eng = months_3c_eng[local.tm_mon - 1]
-        self.month_name_eng = months_eng[local.tm_mon - 1]
-        self.years_day = local.tm_yday
-        self.months_day = local.tm_mday
-        self.weaks_day = local.tm_wday
-        week_3c_eng = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-        week_eng = [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-            "Sunday",
-        ]
-        self.weeks_day_3_characters_eng = week_3c_eng[local.tm_wday - 1]
-        self.weeks_day_name_eng = week_eng[local.tm_wday - 1]
-        self.hour = local.tm_hour
-        self.minute = local.tm_min
-        self.second = local.tm_sec
-        self.millisecond_not_rounded = point_of_time % 1 * 1000
-        self.millisecond = round(point_of_time % 1 * 1000)
-        self.european_date_without_0s = f"{self.months_day}.{self.month}.{self.year}"
-        self.time_string_24h_without_0s = f"{self.hour}:{self.minute}:{self.second}"
-        str_months_day, str_month = str(self.months_day), str(self.month)
-        while len(str_months_day) < 2:
-            str_months_day = "0" + str_months_day
-        while len(str_month) < 2:
-            str_month = "0" + str_month
-        self.european_date_with_0s = f"{str_months_day}.{str_month}.{self.year}"
-        str_hour, str_minute, str_second = (
-            str(self.hour),
-            str(self.minute),
-            str(self.second),
-        )
-        while len(str_hour) < 2:
-            str_hour = "0" + str_hour
-        while len(str_minute) < 2:
-            str_minute = "0" + str_minute
-        while len(str_second) < 2:
-            str_second = "0" + str_second
-        self.time_string_24h_with_0s = f"{str_hour}:{str_minute}:{str_second}"
-        """Stunde:Minute:Sekunde"""
-        self.stempel_1 = (
-            self.time_string_24h_with_0s + " - " + self.european_date_with_0s
-        )
-        """Stunde:Minute:Sekunde - Tag.Monat.Jahr"""
-        self.stempel_2 = (
-            f"{str_hour}.{str_minute}.{str_second}" + " - " + self.european_date_with_0s
-        )
-        """Stunde.Minute.Sekunde - Tag.Monat.Jahr"""
-        self.stempel_3 = (
-            self.european_date_with_0s + " - " + f"{str_hour}.{str_minute}.{str_second}"
-        )
-        """Tag.Monat.Jahr - Stunde.Minute.Sekunde"""
-        self.stempel_4 = f"{self.year}-{str_month}-{str_months_day} - {str_hour}-{str_minute}-{str_second}"
-        """Jahr-Monat-Tag - Stunde-Minute-Sekunde"""
-        self.stempel_5 = f"{self.year}-{str_month}-{str_months_day} - {str_hour}-{str_minute}-{str_second}-{self.millisecond}"
-        """Jahr-Monat-Tag - Stunde-Minute-Sekunde-Millisekunde"""
-
-
-class SeleniumChrome_testing(uc.Chrome):
+class UndetectedSeleniumChrome(uc.Chrome):
     """Creates a new instance of the chrome driver. Starts the service and then creates new instance of chrome driver. You could also use Selenium as is but I think this makes it easier.
 
     Parameters
@@ -1814,11 +1820,14 @@ class SeleniumChrome_testing(uc.Chrome):
         log_capabilities: bool = False,
         page_load_strategy: str = "normal",
         extensions: tuple = (),
-        chromedriver_path: str = CHROMEDRIVER_PATH,
+        chromedriver_path: str = None,
         chrome_profile_user_data: str = CHROME_PROFILE_USER_DATA,
         user_agent: str = USER_AGENT,
         download_directory: str = None,
         allow_multiple_downloads: bool = False,
+        proxy: str = None,
+        undetected: bool = False,
+        disable_gpu: bool = False,
     ):
         """Creates a new instance of the chrome driver. Starts the service and then creates new instance of chrome driver.
 
@@ -1874,23 +1883,24 @@ class SeleniumChrome_testing(uc.Chrome):
 
         user_agent : str, optional, by default "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
             The used user-agent
-        """
-        # executable_path=... # executable_path - Deprecated: path to the executable. If the default is used it assumes the executable is in the $PATH
-        # port=... # port - Deprecated: port you would like the service to run, if left as 0, a free port will be found.
-        # chrome_options=None
-        # service_args=None # service_args - Deprecated: List of args to pass to the driver service
-        # desired_capabilities=None # desired_capabilities - Deprecated: Dictionary object with non-browser specific capabilities only, such as "proxy" or "loggingPref".
-        # service_log_path=... # service_log_path - Deprecated: Where to log information from the driver.
-        # _keep_alive=... # keep_alive - Deprecated: Whether to configure ChromeRemoteConnection to use HTTP keep-alive.
+        
+        download_directory : str, otional, by default None
 
+        allow_multiple_downloads : bool, otional, by default False
+
+        proxy : str, otional, by default None
+            "IpOfTheProxy:PORT"
+        
+        undetected : bool, optional, by default False
+        """
         self.tabs = {}
         """Dictionary for tabs; first tab is called 0."""
 
         caps = DesiredCapabilities.CHROME
-        options = webdriver.ChromeOptions()
-        options.add_experimental_option(
-            "excludeSwitches", ["enable-logging"]
-        )  # remove a message similar to: DevTools listening on ws://127.0.0.1:52682/devtools/browser/3cdf4946-2e56-40bf-b3be-d8adddf4ef21
+        options = uc.ChromeOptions()
+        # options.add_experimental_option(
+        #     "excludeSwitches", ["enable-logging"]
+        # )  # remove a message similar to: DevTools listening on ws://127.0.0.1:52682/devtools/browser/3cdf4946-2e56-40bf-b3be-d8adddf4ef21
         options.add_argument(user_agent)
         options.page_load_strategy = page_load_strategy
         prefs = {}
@@ -1902,7 +1912,7 @@ class SeleniumChrome_testing(uc.Chrome):
             prefs["profile.default_content_settings.popups"] = 0
             prefs["profile.default_content_setting_values.automatic_downloads"] = 1
             prefs["download.prompt_for_download"] = False
-        options.add_experimental_option("prefs", prefs)
+        # options.add_experimental_option("prefs", prefs)  # -> raises error
         if incognito:
             options.add_argument("--incognito")
         if profile != False:
@@ -1911,13 +1921,21 @@ class SeleniumChrome_testing(uc.Chrome):
                 use_profile = profile
             options.add_argument("user-data-dir=" + chrome_profile_user_data)
             options.add_argument("profile-directory=" + use_profile)
+            options.add_argument("--user-data-dir=" + chrome_profile_user_data)
+            options.add_argument("--profile-directory=" + use_profile)
         if window_size != None:
             options.add_argument(f"--window-size={window_size}")
         if window_position != None:
             options.add_argument(f"--window-position={window_position}")
         if headless:
-            # options.add_argument("--headless")
-            options.add_argument("--headless=new")
+            if headless == "old":
+                options.add_argument("--headless=old")
+            elif headless == "headless":
+                options.add_argument("--headless")
+            else:
+                options.add_argument("--headless=new")
+            disable_gpu = True
+        if disable_gpu:
             options.add_argument("--disable-gpu")
         elif start_maximized:
             options.add_argument("–-start-maximized")
@@ -1926,23 +1944,35 @@ class SeleniumChrome_testing(uc.Chrome):
         if log_level_3:
             options.add_argument("--log-level=3")
         if log_capabilities:
-            caps["goog:loggingPrefs"] = {"performance": "ALL"}
+            options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
+            options.add_argument("--log-capabilities=ALL")
+        if proxy != None:
+            options.add_argument(f"--proxy-server{proxy}") 
+        if undetected:
+            # Adding argument to disable the AutomationControlled flag 
+            options.add_argument("--disable-blink-features=AutomationControlled") 
+            
+            # Exclude the collection of enable-automation switches 
+            options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
+            
+            # Turn-off userAutomationExtension 
+            options.add_experimental_option("useAutomationExtension", False) 
+        options.add_argument(f"--disable-web-security") 
+
         for ext in extensions:
             options.add_extension(ext)
 
-        service = Service(chromedriver_path)
+        if chromedriver_path:
+            service = Service(chromedriver_path)
+        else:
+            service = Service()
 
-        # super().__init__(executable_path, port, options, service_args, desired_capabilities, service_log_path, chrome_options, service, _keep_alive)
-        # super().__init__(port=port, options=options, service_args=service_args, desired_capabilities=desired_capabilities, service_log_path=service_log_path, chrome_options=chrome_options, service=service)
-        super().__init__(options=options, service=service, desired_capabilities=caps)
+        super().__init__(options=options, service=service)
 
-        # self.tabs["Tab_0"] = self.current_window_handle
-        # self.tabs["main"] = self.current_window_handle
-        # self.tabs["0"] = self.current_window_handle
         self.tabs[0] = self.current_window_handle
 
         def keep_driver_alive(driver):
-            def isBrowserAlive(driver: SeleniumChrome):
+            def isBrowserAlive(driver: UndetectedSeleniumChrome):
                 try:
                     driver.window_handles
                     return True
@@ -2691,22 +2721,26 @@ class SeleniumChrome_testing(uc.Chrome):
 
     def wait_for_element_improvised(
         self,
-        tag: str,
         by: str = XPATH,
+        tag: str = None,
         timeout: float = 10,
         raise_Exception: bool = False,
+        return_timeout: bool = False,
     ) -> WebElement | None:
         """Winged version, baased on trial and error. The driver should wait until the element is found. I still have some trouble with this one.
 
         Args:
-            tag (str | WebElement): Identification like xpath or the element itself.
             by (str, optional): No need to use xpath if you don't want to. Defaults to XPATH.
+            tag (str | WebElement): Identification like xpath or the element itself.
             timeout (float, optional): Wait max this in seconds. Defaults to 10.
             raise_Exception (bool, optional): On timeout you can have an exception, if you want to. Defaults to False.
+            return_timeout (bool, optional): On timeout return the string 'timeout'. Defaults to False.
 
         Returns:
             WebElement | None: It should return the WebElement but often times it doesn't ... I don't know why, since I didn't want to look at WebDriverWait too much.
         """
+        if tag == XPATH:
+            tag, by = by, tag
 
         def task():
             try:
@@ -2717,11 +2751,16 @@ class SeleniumChrome_testing(uc.Chrome):
 
         start = time()
         element = task()
-        while element == None and time() - start < timeout:
+        while element == None:
+            if time() - start > timeout:
+                break
             element = task()
-        if element == None and raise_Exception:
+        if element:
+            return element
+        elif element == None and raise_Exception:
             raise NoSuchElementException
-        return element
+        elif time() - start > timeout and return_timeout:
+            return "timeout"
 
     def wait_for_clickable(
         self,
@@ -2850,6 +2889,14 @@ class SeleniumChrome_testing(uc.Chrome):
             filename = Zeit(time()).stempel_5 + "." + filename.split(".")[-1]
         s = Template(download_src)
         script = s.substitute(src=src, filename=filename)
+        self.execute_script(script)
+
+    def click_link(
+        self, link: str
+    ):
+        filename = Zeit(time()).stempel_5 + "." + filename.split(".")[-1]
+        s = Template(click_link_templ)
+        script = s.substitute(src=link, filename=filename)
         self.execute_script(script)
 
     def download_blob_src_by_xpath(
@@ -3043,8 +3090,9 @@ class SeleniumChrome_testing(uc.Chrome):
         return c_jar
 
 
+
 if __name__ == "__main__":
-    driver = SeleniumChrome()
+    driver = UndetectedSeleniumChrome()
     driver.get("https://google.com")
     sleep(10)
     driver.quit()

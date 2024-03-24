@@ -28,7 +28,7 @@ from .Firefox.SeleniumFirefox import (
     WebElement,
     Keys,
 )
-from .UndetectedChrome.SeleniumChrome import SeleniumChrome as UndetectedSeleniumChrome
+from .UndetectedChrome.SeleniumChrome import UndetectedSeleniumChrome
 
 
-__version__ = "0.0.7"
+__version__ = "0.0.8"

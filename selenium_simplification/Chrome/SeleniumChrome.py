@@ -16,6 +16,7 @@ from threading import Thread
 from time import sleep, time, localtime
 from typing import Callable, Iterable
 import requests
+from io import StringIO, FileIO, RawIOBase, IOBase
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -516,7 +517,6 @@ class SeleniumChrome(webdriver.Chrome):
         log_capabilities: bool = False,
         page_load_strategy: str = "normal",
         extensions: tuple = (),
-        # chromedriver_path: str = CHROMEDRIVER_PATH,
         chromedriver_path: str = None,
         chrome_profile_user_data: str = CHROME_PROFILE_USER_DATA,
         user_agent: str = USER_AGENT,
@@ -525,6 +525,8 @@ class SeleniumChrome(webdriver.Chrome):
         proxy: str = None,
         undetected: bool = False,
         disable_gpu: bool = False,
+        disable_web_security: bool = False,
+        browser_version: str = None,
     ):
         """Creates a new instance of the chrome driver. Starts the service and then creates new instance of chrome driver.
 
@@ -604,8 +606,11 @@ class SeleniumChrome(webdriver.Chrome):
         caps = DesiredCapabilities.CHROME
         options = webdriver.ChromeOptions()
         options.add_experimental_option(
+            "excludeSwitches", ["enable-automation"]
+        )
+        options.add_experimental_option(
             "excludeSwitches", ["enable-logging"]
-        )  # remove a message similar to: DevTools listening on ws://127.0.0.1:52682/devtools/browser/3cdf4946-2e56-40bf-b3be-d8adddf4ef21
+        )
         options.add_argument(user_agent)
         options.page_load_strategy = page_load_strategy
         prefs = {}
@@ -662,7 +667,10 @@ class SeleniumChrome(webdriver.Chrome):
             
             # Turn-off userAutomationExtension 
             options.add_experimental_option("useAutomationExtension", False) 
-        options.add_argument(f"--disable-web-security") 
+        if disable_web_security:
+            options.add_argument(f"--disable-web-security") 
+        if browser_version:
+            options.set_capability("browserVersion", browser_version)
 
         for ext in extensions:
             options.add_extension(ext)
@@ -671,6 +679,7 @@ class SeleniumChrome(webdriver.Chrome):
             service = Service(chromedriver_path)
         else:
             service = Service()
+        # service.log_output = None
 
         super().__init__(options=options, service=service)
 
