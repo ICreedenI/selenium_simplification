@@ -4,6 +4,11 @@
 Created on "Datum"
 
 @author: Creed
+
+List of Chrome Flags for Tooling
+    -> https://github.com/GoogleChrome/chrome-launcher/blob/main/docs/chrome-flags-for-tools.md
+List of Chromium Command Line Switches
+    -> https://peter.sh/experiments/chromium-command-line-switches/
 """
 
 
@@ -28,7 +33,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-
 
 def get_from_json(path):
     with open(path) as f:
@@ -438,59 +442,46 @@ set_of_special_keycodes_lower = {
 class SeleniumChrome(webdriver.Chrome):
     """Creates a new instance of the chrome driver. Starts the service and then creates new instance of chrome driver. You could also use Selenium as is but I think this makes it easier.
 
-    Parameters
-    ----------
-    headless : bool, optional, by default True
-        Headless mode does not show any window and will disable the gpu usage
+    Args:
+        - headless (bool, optional): Defaults to False. Headless mode with 4 options: 
+            - False -> deactivated 
+            - True -> options.add_argument("--headless=new") 
+            - "headless" -> options.add_argument("--headless") 
+            - "old" -> options.add_argument("--headless=old")
+        - keep_alive (bool, optional): Keeps the python script running as long as driver.window_handles is accessible. Defaults to False.
+        - log_level_3 (bool, optional): Reducing log. Defaults to True.
+        - muted (bool, optional): Mute the browser. Defaults to True.
+        - start_maximized (bool, optional): Start the browser maximized. Defaults to False.
+        - window_position (str, optional): Set the window position using a string e.g. "1000,1000". Defaults to None.
+        - window_size (str, optional): Set the window size using a string e.g. "1000,1000". Defaults to None.
+        - profile (bool | str, optional): Path to your chrome profile which should be in the directory "C:\\Users\\USER_NAME\\AppData\\Local\\Google\\Chrome\\User Data". Defaults to False.
+        - incognito (bool, optional): Use incognito mode when True. Defaults to False.
+        - log_capabilities (bool, optional): Set True to access logs e.g. network logs. Defaults to False. [options.set_capability("goog:loggingPrefs", {"performance": "ALL"}); options.add_argument("--log-capabilities=ALL")]
+        - page_load_strategy (str, optional): Browser page load strategy. Defaults to "normal".
+            - "normal": Used by default, waits for all resources to download                
+            - "eager": DOM access is ready, but other resources like images may still be loading                
+            - "none": Does not block WebDriver at all
+        - extensions (tuple, optional): List of paths to .crx files. They will be installed right after launch. Defaults to ().
+        - chromedriver_path (str, optional): May be the path to the chromium driver or an Service instance. Should work with None otherwise I recommend `webdriver_manager` with `selenium.webdriver.chrome.service.Service(ChromeDriverManager().install())`. Defaults to None.
+        - chrome_profile_user_data (str, optional): By default taken from "CHROME_PROFILE_USER_DATA" in the config.json
+            The path to the config.json is available under SELENIUM_CHROME_CONFIG_PATH.
+            Set the path to the directory of your Chrome application where all the user data directories can be found. Defaults to CHROME_PROFILE_USER_DATA.
+        - user_agent (str, optional): By default "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36". Defaults to USER_AGENT.
+        - download_directory (str, optional): Path to your wished download directory. Defaults to None.
+        - allow_multiple_downloads (bool, optional): To allow Chrome to download multiple files. Defaults to False.
+        - proxy (str, optional): Proxy address. Defaults to None.
+        - undetected (bool, optional): Be a bit less bot like. Defaults to False. Uses:
+            - options.add_argument("--disable-blink-features=AutomationControlled")
+            - options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
+            - options.add_experimental_option("useAutomationExtension", False) 
+        - disable_gpu (bool, optional): Disables the gpu usage, automatically used in the headless mode. Defaults to False.
+        - disable_web_security (bool, optional): Uses "options.add_argument(f"--disable-web-security")". Defaults to False.
+        - browser_version (str, optional): Older versions like 117 can be nicer. Defaults to None.
+        - enable_automation (bool, optional): In an effort to reduce terminal output: "options.add_experimental_option("excludeSwitches", ["enable-automation"])". Defaults to True.
+        - enable_logging (bool, optional): In an effort to reduce terminal output: "options.add_experimental_option("excludeSwitches", ["enable-logging"])". Defaults to True.
 
-    keep_alive : bool, optional, by default False
-        "width,height" - NO SPACE - mointor size: HD: 1080,720 ; FullHD: 1920,1080 ; 4K: 2560,1440
-
-    log_level_3 : bool, optional, by default True
-        Prints less information
-
-    muted : bool, optional, by default True
-        Browser starts muted
-
-    start_maximized : bool, optional, by default False
-        Browser starts maximized
-
-    window_position : str, optional, by default ""
-        Browser starts at specified position
-
-    window_size : str, optional, by default ""
-        Browser starts with specified size
-
-    profile : bool | str, optional, by default False
-        Browser uses Profile 1 if True or defined user profile. False means no profile used at all
-
-    log_capabilities : bool, optional, by default False
-        Browser log capabilities
-
-    page_load_strategy : str, optional, by default 'normal'
-        Browser page load strategy:
-
-            \t- 'normal':Used by default, waits for all resources to download
-
-            \t- 'eager':DOM access is ready, but other resources like images may still be loading
-
-            \t- 'none':Does not block WebDriver at all
-
-    extensions : tuple, optional, by default ()
-        A tuple of paths to the .crx extension files. They will be installed right after launch.
-
-    chromedriver_path : str, optional, by default CHROMEDRIVER_PATH
-        You should have the driver for Chrome named as chromedriver.exe under the path CHROMEDRIVER_PATH.
-        Please update this file when needed or set the path in the config.json under CHROMEDRIVER_PATH to the correct location.
-        The path to the config.json is available under SELENIUM_CHROME_CONFIG_PATH.
-        You can set the path to the driver manually here.
-
-    chrome_profile_user_data : str, optional, by default taken from "CHROME_PROFILE_USER_DATA" in the config.json
-        The path to the config.json is available under SELENIUM_CHROME_CONFIG_PATH.
-        Set the path to the directory of your Chrome application where all the user data directories can be found.
-
-    user_agent : str, optional, by default "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
-        The used user-agent
+    Returns:
+        webdriver.Chrome: The driver instance
     """
 
     standard_log_types = [
@@ -527,116 +518,60 @@ class SeleniumChrome(webdriver.Chrome):
         disable_gpu: bool = False,
         disable_web_security: bool = False,
         browser_version: str = None,
+        enable_automation: bool = True,
+        enable_logging: bool = True,
     ):
-        """Creates a new instance of the chrome driver. Starts the service and then creates new instance of chrome driver.
+        """Creates a new instance of the chrome driver. Starts the service and then creates new instance of chrome driver. You could also use Selenium as is but I think this makes it easier.
 
-        Parameters
-        ----------
-        headless : bool, optional, by default True
-            Headless mode does not show any window and will disable the gpu usage
+        Args:
+            - headless (bool, optional): Defaults to False. Headless mode with 4 options: 
+                - False -> deactivated 
+                - True -> options.add_argument("--headless=new") 
+                - "headless" -> options.add_argument("--headless") 
+                - "old" -> options.add_argument("--headless=old")
+            - keep_alive (bool, optional): Keeps the python script running as long as driver.window_handles is accessible. Defaults to False.
+            - log_level_3 (bool, optional): Reducing log. Defaults to True.
+            - muted (bool, optional): Mute the browser. Defaults to True.
+            - start_maximized (bool, optional): Start the browser maximized. Defaults to False.
+            - window_position (str, optional): Set the window position using a string e.g. "1000,1000". Defaults to None.
+            - window_size (str, optional): Set the window size using a string e.g. "1000,1000". Defaults to None.
+            - profile (bool | str, optional): Path to your chrome profile which should be in the directory "C:\\Users\\USER_NAME\\AppData\\Local\\Google\\Chrome\\User Data". Defaults to False.
+            - incognito (bool, optional): Use incognito mode when True. Defaults to False.
+            - log_capabilities (bool, optional): Set True to access logs e.g. network logs. Defaults to False. [options.set_capability("goog:loggingPrefs", {"performance": "ALL"}); options.add_argument("--log-capabilities=ALL")]
+            - page_load_strategy (str, optional): Browser page load strategy. Defaults to "normal".
+                - "normal": Used by default, waits for all resources to download                
+                - "eager": DOM access is ready, but other resources like images may still be loading                
+                - "none": Does not block WebDriver at all
+            - extensions (tuple, optional): List of paths to .crx files. They will be installed right after launch. Defaults to ().
+            - chromedriver_path (str, optional): May be the path to the chromium driver or an Service instance. Should work with None otherwise I recommend `webdriver_manager` with `selenium.webdriver.chrome.service.Service(ChromeDriverManager().install())`. Defaults to None.
+            - chrome_profile_user_data (str, optional): By default taken from "CHROME_PROFILE_USER_DATA" in the config.json
+                The path to the config.json is available under SELENIUM_CHROME_CONFIG_PATH.
+                Set the path to the directory of your Chrome application where all the user data directories can be found. Defaults to CHROME_PROFILE_USER_DATA.
+            - user_agent (str, optional): By default "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36". Defaults to USER_AGENT.
+            - download_directory (str, optional): Path to your wished download directory. Defaults to None.
+            - allow_multiple_downloads (bool, optional): To allow Chrome to download multiple files. Defaults to False.
+            - proxy (str, optional): Proxy address. Defaults to None.
+            - undetected (bool, optional): Be a bit less bot like. Defaults to False. Uses:
+                - options.add_argument("--disable-blink-features=AutomationControlled")
+                - options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
+                - options.add_experimental_option("useAutomationExtension", False) 
+            - disable_gpu (bool, optional): Disables the gpu usage, automatically used in the headless mode. Defaults to False.
+            - disable_web_security (bool, optional): Uses "options.add_argument(f"--disable-web-security")". Defaults to False.
+            - browser_version (str, optional): Older versions like 117 can be nicer. Defaults to None.
+            - enable_automation (bool, optional): In an effort to reduce terminal output: "options.add_experimental_option("excludeSwitches", ["enable-automation"])". Defaults to True.
+            - enable_logging (bool, optional): In an effort to reduce terminal output: "options.add_experimental_option("excludeSwitches", ["enable-logging"])". Defaults to True.
 
-        keep_alive : bool, optional, by default False
-            "width,height" - NO SPACE - mointor size: HD: 1080,720 ; FullHD: 1920,1080 ; 4K: 2560,1440
-
-        log_level_3 : bool, optional, by default True
-            Prints less information
-
-        muted : bool, optional, by default True
-            Browser starts muted
-
-        start_maximized : bool, optional, by default False
-            Browser starts maximized
-
-        window_position : str, optional, by default ""
-            Browser starts at specified position
-
-        window_size : str, optional, by default ""
-            Browser starts with specified size
-
-        profile : bool | str, optional, by default False
-            Browser uses Profile 1 if True or defined user profile. False means no profile used at all
-
-        log_capabilities : bool, optional, by default False
-            Browser log capabilities
-
-        page_load_strategy : str, optional, by default 'normal'
-            Browser page load strategy:
-
-                \t- 'normal':Used by default, waits for all resources to download
-
-                \t- 'eager':DOM access is ready, but other resources like images may still be loading
-
-                \t- 'none':Does not block WebDriver at all
-
-        extensions : tuple, optional, by default ()
-            A tuple of paths to the .crx extension files. They will be installed right after launch.
-
-        chromedriver_path : str, optional, by default CHROMEDRIVER_PATH
-            You should have the driver for Chrome named as chromedriver.exe under the path CHROMEDRIVER_PATH.
-            Please update this file when needed.
-            You can set the path to the driver manually here.
-
-        chrome_profile_user_data : str, optional, by default taken from "CHROME_PROFILE_USER_DATA" in the config.json
-            The path to the config.json is available under SELENIUM_CHROME_CONFIG_PATH.
-            Set the path to the directory of your Chrome application where all the user data directories can be found.
-
-        user_agent : str, optional, by default "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
-            The used user-agent
-        
-        download_directory : str, otional, by default None
-
-        allow_multiple_downloads : bool, otional, by default False
-
-        proxy : str, otional, by default None
-            "IpOfTheProxy:PORT"
-        
-        undetected : bool, optional, by default False
+        Returns:
+            webdriver.Chrome: The driver instance
         """
-        # executable_path=... # executable_path - Deprecated: path to the executable. If the default is used it assumes the executable is in the $PATH
-        # port=... # port - Deprecated: port you would like the service to run, if left as 0, a free port will be found.
-        # chrome_options=None
-        # service_args=None # service_args - Deprecated: List of args to pass to the driver service
-        # desired_capabilities=None # desired_capabilities - Deprecated: Dictionary object with non-browser specific capabilities only, such as "proxy" or "loggingPref".
-        # service_log_path=... # service_log_path - Deprecated: Where to log information from the driver.
-        # _keep_alive=... # keep_alive - Deprecated: Whether to configure ChromeRemoteConnection to use HTTP keep-alive.
 
         self.tabs = {}
         """Dictionary for tabs; first tab is called 0."""
 
         caps = DesiredCapabilities.CHROME
         options = webdriver.ChromeOptions()
-        options.add_experimental_option(
-            "excludeSwitches", ["enable-automation"]
-        )
-        options.add_experimental_option(
-            "excludeSwitches", ["enable-logging"]
-        )
-        options.add_argument(user_agent)
-        options.page_load_strategy = page_load_strategy
+        
         prefs = {}
-        if download_directory != None:
-            # prefs = {"download.default_directory": download_directory}
-            # options.add_experimental_option("prefs", prefs)
-            prefs["download.default_directory"] = download_directory
-        if allow_multiple_downloads:
-            prefs["profile.default_content_settings.popups"] = 0
-            prefs["profile.default_content_setting_values.automatic_downloads"] = 1
-            prefs["download.prompt_for_download"] = False
-        options.add_experimental_option("prefs", prefs)
-        if incognito:
-            options.add_argument("--incognito")
-        if profile != False:
-            use_profile = CHROME_PROFILE
-            if profile != True:
-                use_profile = profile
-            options.add_argument("user-data-dir=" + chrome_profile_user_data)
-            options.add_argument("profile-directory=" + use_profile)
-            options.add_argument("--user-data-dir=" + chrome_profile_user_data)
-            options.add_argument("--profile-directory=" + use_profile)
-        if window_size != None:
-            options.add_argument(f"--window-size={window_size}")
-        if window_position != None:
-            options.add_argument(f"--window-position={window_position}")
         if headless:
             if headless == "old":
                 options.add_argument("--headless=old")
@@ -645,41 +580,67 @@ class SeleniumChrome(webdriver.Chrome):
             else:
                 options.add_argument("--headless=new")
             disable_gpu = True
+        if log_level_3:
+            options.add_argument("--log-level=3")
+        if muted:
+            options.add_argument("--mute-audio")
         if disable_gpu:
             options.add_argument("--disable-gpu")
         elif start_maximized:
             options.add_argument("–-start-maximized")
-        if muted:
-            options.add_argument("--mute-audio")
-        if log_level_3:
-            options.add_argument("--log-level=3")
+        if window_position != None:
+            options.add_argument(f"--window-position={window_position}")
+        if window_size != None:
+            options.add_argument(f"--window-size={window_size}")
+        if profile != False:
+            use_profile = CHROME_PROFILE
+            if profile != True:
+                use_profile = profile
+            options.add_argument("user-data-dir=" + chrome_profile_user_data)
+            options.add_argument("profile-directory=" + use_profile)
+            options.add_argument("--user-data-dir=" + chrome_profile_user_data)
+            options.add_argument("--profile-directory=" + use_profile)
+        if incognito:
+            options.add_argument("--incognito")
         if log_capabilities:
             options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
             options.add_argument("--log-capabilities=ALL")
-        if proxy != None:
-            options.add_argument(f"--proxy-server{proxy}") 
+        options.page_load_strategy = page_load_strategy
+        for ext in extensions:
+            options.add_extension(ext)
+        if chromedriver_path:
+            service = Service(chromedriver_path)
+        elif isinstance(chromedriver_path, Service):
+            service = chromedriver_path
+        else:
+            service = Service()
+        if user_agent:
+            options.add_argument(user_agent)
+        if download_directory:
+            prefs["download.default_directory"] = download_directory
+        if allow_multiple_downloads:
+            prefs["profile.default_content_settings.popups"] = 0
+            prefs["profile.default_content_setting_values.automatic_downloads"] = 1
+            prefs["download.prompt_for_download"] = False
+        if proxy:
+            options.add_argument(f"--proxy-server={proxy}") 
         if undetected:
             # Adding argument to disable the AutomationControlled flag 
-            options.add_argument("--disable-blink-features=AutomationControlled") 
-            
+            options.add_argument("--disable-blink-features=AutomationControlled")
             # Exclude the collection of enable-automation switches 
             options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
-            
             # Turn-off userAutomationExtension 
             options.add_experimental_option("useAutomationExtension", False) 
         if disable_web_security:
             options.add_argument(f"--disable-web-security") 
         if browser_version:
             options.set_capability("browserVersion", browser_version)
+        if enable_automation:
+            options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        if enable_logging:
+            options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
-        for ext in extensions:
-            options.add_extension(ext)
-
-        if chromedriver_path:
-            service = Service(chromedriver_path)
-        else:
-            service = Service()
-        # service.log_output = None
+        options.add_experimental_option("prefs", prefs)
 
         super().__init__(options=options, service=service)
 

@@ -4,6 +4,11 @@
 Created on "Datum"
 
 @author: Creed
+
+List of Firefox CommandLineOptions
+    -> https://wiki.mozilla.org/Firefox/CommandLineOptions
+List of Firefox config entries
+    -> http://kb.mozillazine.org/About:config_entries
 """
 
 
