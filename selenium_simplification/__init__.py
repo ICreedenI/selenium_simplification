@@ -21,8 +21,6 @@ from .Firefox.SeleniumFirefox import (
     PARTIAL_LINK_TEXT,
     TAG_NAME,
     XPATH,
-    GECKODRIVER_PATH,
-    SELENIUM_FIREFOX_CONFIG_PATH,
     WebElement,
     Keys,
 )
