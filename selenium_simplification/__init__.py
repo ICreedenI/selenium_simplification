@@ -1,5 +1,6 @@
 from .Chrome.SeleniumChrome import (
     SeleniumChrome,
+    SeleniumChromeTor,
     CLASS_NAME,
     CSS_SELECTOR,
     ID,
@@ -16,4 +17,4 @@ from .Firefox.SeleniumFirefox import SeleniumFirefox
 from .UndetectedChrome.UndetectedSeleniumChrome import UndetectedSeleniumChrome
 
 
-__version__ = "0.0.9"
+__version__ = "0.0.10"

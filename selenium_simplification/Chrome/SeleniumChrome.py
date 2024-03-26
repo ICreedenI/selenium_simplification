@@ -19,6 +19,7 @@ from threading import Thread
 from time import sleep, time, localtime
 from typing import Callable, Iterable
 import requests
+import subprocess
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -1855,6 +1856,111 @@ class SeleniumChrome(webdriver.Chrome):
                 path=cookie["path"],
             )
         return c_jar
+
+
+class SeleniumChromeTor(SeleniumChrome):
+    """
+    SeleniumChrome with Tor implementation.
+
+    You need to provide the path to your Tor executable, which is something like INSALLATION_DIR\Tor Browser\Browser\TorBrowser\Tor\tor.exe
+
+    Proxy will be used with the Tor proxy "socks5://127.0.0.1:9050" ("socks5://localhost:9050").
+
+    The parameter torexe is a subprocess.Popen object which will be killed when driver.quit is called.
+
+    You can check you Tor connection at https://check.torproject.org or call self.check_tor_connection which is self.get("https://check.torproject.org")
+
+    See SeleniumChrome for more information.
+    """
+    def __init__(
+        self,
+        tor_path: str,
+        headless: bool = False,
+        keep_alive: bool = False,
+        log_level_3: bool = True,
+        muted: bool = True,
+        start_maximized: bool = False,
+        window_position: str = None,
+        window_size: str = None,
+        profile: bool | str = False,
+        incognito: bool = False,
+        log_capabilities: bool = False,
+        page_load_strategy: str = "normal",
+        extensions: tuple = (),
+        chromedriver_path: str = None,
+        chrome_profile_user_data: str = None,
+        user_agent: str = "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+        download_directory: str = "socks5://127.0.0.1:9050",
+        allow_multiple_downloads: bool = False,
+        proxy: str = None,
+        undetected: bool = False,
+        disable_gpu: bool = False,
+        disable_web_security: bool = False,
+        browser_version: str = None,
+        enable_automation: bool = True,
+        enable_logging: bool = True,
+    ):
+        
+        def start_tor_wait_till_done(tor_path: str):
+            """Starts Tor using subprocess and waits until the connection is established.
+
+            Use `"socks5://127.0.0.1:9050"` or `"socks5://localhost:9050"` for the proxy.
+
+            Use `torexe.kill()` to terminate the process.
+
+            Check established connection at https://check.torproject.org
+
+            Returns:
+                Popen[bytes]: torexe
+            """
+            torexe = subprocess.Popen(tor_path, shell=False, stdout=subprocess.PIPE)
+            while True:
+                output = torexe.stdout.readline()
+                if torexe.poll() is not None:
+                    break
+                if output:
+                    msg = output.decode().strip()
+                    print(msg)
+                    if "Bootstrapped 100% (done): Done" in msg:
+                        break
+            return torexe
+        self.torexe = start_tor_wait_till_done(tor_path)
+
+        super().__init__(
+            headless,
+            keep_alive,
+            log_level_3,
+            muted,
+            start_maximized,
+            window_position,
+            window_size,
+            profile,
+            incognito,
+            log_capabilities,
+            page_load_strategy,
+            extensions,
+            chromedriver_path,
+            chrome_profile_user_data,
+            user_agent,
+            download_directory,
+            allow_multiple_downloads,
+            proxy,
+            undetected,
+            disable_gpu,
+            disable_web_security,
+            browser_version,
+            enable_automation,
+            enable_logging,
+        )
+    
+    def quit(self) -> None:
+        try: self.torexe.kill()
+        except: pass
+        return super().quit()
+
+    def check_tor_connection(self):
+        """Checking the Tor connection: self.get("https://check.torproject.org")"""
+        self.get("https://check.torproject.org")
 
 
 if __name__ == "__main__":
