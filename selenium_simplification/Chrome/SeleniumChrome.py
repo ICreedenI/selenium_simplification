@@ -1900,6 +1900,19 @@ class SeleniumChromeTor(SeleniumChrome):
         enable_automation: bool = True,
         enable_logging: bool = True,
     ):
+        """
+        SeleniumChrome with Tor implementation.
+
+        You need to provide the path to your Tor executable, which is something like INSALLATION_DIR\Tor Browser\Browser\TorBrowser\Tor\tor.exe
+
+        Proxy will be used with the Tor proxy "socks5://127.0.0.1:9050" ("socks5://localhost:9050").
+
+        The parameter torexe is a subprocess.Popen object which will be killed when driver.quit is called.
+
+        You can check you Tor connection at https://check.torproject.org or call self.check_tor_connection which is self.get("https://check.torproject.org")
+
+        See SeleniumChrome for more information.
+        """
         
         def start_tor_wait_till_done(tor_path: str):
             """Starts Tor using subprocess and waits until the connection is established.
