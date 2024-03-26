@@ -1864,6 +1864,8 @@ class SeleniumChromeTor(SeleniumChrome):
 
     You need to provide the path to your Tor executable, which is something like INSALLATION_DIR\Tor Browser\Browser\TorBrowser\Tor\tor.exe
 
+    Tor in combination with a profile does not work. Do not use a profile with Tor. The profile option won't be removed regardless.
+
     Proxy will be used with the Tor proxy "socks5://127.0.0.1:9050" ("socks5://localhost:9050").
 
     The parameter torexe is a subprocess.Popen object which will be killed when driver.quit is called.
