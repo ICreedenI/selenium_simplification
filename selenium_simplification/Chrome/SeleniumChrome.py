@@ -424,9 +424,9 @@ class SeleniumChrome(webdriver.Chrome):
         • headless (bool, optional) Defaults to False. 
             Defaults to False. Headless mode with 4 options:
                 ∘ False ⇾ deactivate
-                ∘ True ⇾ options.add_argument("--headless=new")
+                 ∘ True ⇾ options.add_argument("--headless=new")
                 ∘ "headless" ⇾ options.add_argument("--headless")
-                ∘ "old" ⇾ options.add_argument("--headless=old")
+                 ∘ "old" ⇾ options.add_argument("--headless=old")
     
         • keep_alive (bool, optional) Defaults to False. 
             Keeps the python script running as long as driver.window_handles is accessible.
@@ -460,9 +460,9 @@ class SeleniumChrome(webdriver.Chrome):
     
         • page_load_strategy (str, optional) Defaults to "normal". 
             Browser page load strategy. 
-                ⋅ "normal": Used by default, waits for all resources to download                
-                ⋅ "eager": DOM access is ready, but other resources like images may still be loading                
-                ⋅ "none": Does not block WebDriver at all
+                ∘ "normal": Used by default, waits for all resources to download                
+                 ∘ "eager": DOM access is ready, but other resources like images may still be loading                
+                ∘ "none": Does not block WebDriver at all
     
         • extensions (tuple, optional) Defaults to (). 
             List of paths to .crx files. They will be installed right after launch. 
@@ -491,9 +491,9 @@ class SeleniumChrome(webdriver.Chrome):
     
         • undetected (bool, optional) Defaults to False. 
             Be a bit less bot like. Uses:
-                ⋅ options.add_argument("--disable-blink-features=AutomationControlled")
-                ⋅ options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
-                ⋅ options.add_experimental_option("useAutomationExtension", False) 
+                ∘ options.add_argument("--disable-blink-features=AutomationControlled")
+                 ∘ options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
+                ∘ options.add_experimental_option("useAutomationExtension", False) 
     
         • disable_gpu (bool, optional) Defaults to False. 
             Disables the gpu usage, automatically used in the headless mode. 
@@ -563,9 +563,9 @@ class SeleniumChrome(webdriver.Chrome):
             • headless (bool, optional) Defaults to False. 
                 Defaults to False. Headless mode with 4 options:
                     ∘ False ⇾ deactivate
-                    ∘ True ⇾ options.add_argument("--headless=new")
+                     ∘ True ⇾ options.add_argument("--headless=new")
                     ∘ "headless" ⇾ options.add_argument("--headless")
-                    ∘ "old" ⇾ options.add_argument("--headless=old")
+                     ∘ "old" ⇾ options.add_argument("--headless=old")
         
             • keep_alive (bool, optional) Defaults to False. 
                 Keeps the python script running as long as driver.window_handles is accessible.
@@ -599,9 +599,9 @@ class SeleniumChrome(webdriver.Chrome):
         
             • page_load_strategy (str, optional) Defaults to "normal". 
                 Browser page load strategy. 
-                    ⋅ "normal": Used by default, waits for all resources to download                
-                    ⋅ "eager": DOM access is ready, but other resources like images may still be loading                
-                    ⋅ "none": Does not block WebDriver at all
+                    ∘ "normal": Used by default, waits for all resources to download                
+                     ∘ "eager": DOM access is ready, but other resources like images may still be loading                
+                    ∘ "none": Does not block WebDriver at all
         
             • extensions (tuple, optional) Defaults to (). 
                 List of paths to .crx files. They will be installed right after launch. 
@@ -630,9 +630,9 @@ class SeleniumChrome(webdriver.Chrome):
         
             • undetected (bool, optional) Defaults to False. 
                 Be a bit less bot like. Uses:
-                    ⋅ options.add_argument("--disable-blink-features=AutomationControlled")
-                    ⋅ options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
-                    ⋅ options.add_experimental_option("useAutomationExtension", False) 
+                    ∘ options.add_argument("--disable-blink-features=AutomationControlled")
+                     ∘ options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
+                    ∘ options.add_experimental_option("useAutomationExtension", False) 
         
             • disable_gpu (bool, optional) Defaults to False. 
                 Disables the gpu usage, automatically used in the headless mode. 

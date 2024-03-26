@@ -2,7 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
 
 # UndetectedChrome
-selenium_simplification/UndetectedChrome/
+# selenium_simplification/UndetectedChrome/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
