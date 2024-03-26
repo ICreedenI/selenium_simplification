@@ -8,8 +8,6 @@ from .Chrome.SeleniumChrome import (
     PARTIAL_LINK_TEXT,
     TAG_NAME,
     XPATH,
-    CHROMEDRIVER_PATH,
-    SELENIUM_CHROME_CONFIG_PATH,
     WebElement,
     Keys,
 )

@@ -41,31 +41,6 @@ def get_from_json(path):
     return info
 
 
-file_parent = Path(__file__).parent
-SELENIUM_FIREFOX_CONFIG_PATH = os.path.join(file_parent, "config.json")
-"""Path to the config file wich allows you to permanently change the values of GECKODRIVER_PATH and FIREFOX_PROFILE_USER_DATA"""
-config_data = get_from_json(SELENIUM_FIREFOX_CONFIG_PATH)
-if config_data["GECKODRIVER_PATH"] == None:
-    GECKODRIVER_PATH = os.path.join(file_parent, "geckodriver", "geckodriver.exe")
-else:
-    GECKODRIVER_PATH = config_data["GECKODRIVER_PATH"]
-FIREFOX_PROFILE_USER_DATA = config_data["FIREFOX_PROFILE_USER_DATA"]
-try:
-    profiles = [
-        os.path.join(FIREFOX_PROFILE_USER_DATA, d)
-        for d in os.listdir(FIREFOX_PROFILE_USER_DATA)
-    ]
-    profile_to_mod_date = {}
-    for p in profiles:
-        profile_to_mod_date[p] = os.path.getmtime(p)
-    latest_profile = [
-        p for (p, d) in sorted(profile_to_mod_date.items(), key=lambda pair: pair[1])
-    ][-1]
-    FIREFOX_PROFILE = os.path.basename(latest_profile)
-except:
-    FIREFOX_PROFILE = "Profile 1"
-USER_AGENT = config_data["USER_AGENT"]
-
 
 CLASS_NAME = By.CLASS_NAME
 CSS_SELECTOR = By.CSS_SELECTOR
@@ -391,9 +366,7 @@ class SeleniumFirefox(webdriver.Firefox):
         call method install_addon with the path to the .xpi file ot install. The file can be downloaded by visiting the extenion website in a different browser.
 
     firefoxdriver_path : str, optional, by default GECKODRIVER_PATH
-        You should have the driver for Firefox named as geckodriver.exe under the path GECKODRIVER_PATH.
-        Please update this file when needed or set the path in the config.json under GECKODRIVER_PATH to the correct location.
-        The path to the config.json is available under SELENIUM_FIREFOX_CONFIG_PATH.
+        Looks like 'C:\\Users\\USER_NAME\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles'
         You can set the path to the driver manually here.
 
     firefox_profile_user_data : str, optional, by default taken from "FIREFOX_PROFILE_USER_DATA" in the config.json
@@ -429,9 +402,9 @@ class SeleniumFirefox(webdriver.Firefox):
         incognito: bool = False,
         page_load_strategy: str = "normal",
         # extensions: tuple = (),
-        firefoxdriver_path: str = GECKODRIVER_PATH,
-        firefox_profile_user_data: str = FIREFOX_PROFILE_USER_DATA,
-        user_agent: str = USER_AGENT,
+        firefoxdriver_path: str = None,
+        firefox_profile_user_data: str = None,
+        user_agent: str = 'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/109.0',
         download_directory: str = None,
         log_level_trace: bool = False,
         no_driver: bool = True,
@@ -477,8 +450,7 @@ class SeleniumFirefox(webdriver.Firefox):
             A tuple of paths to the .crx extension files. They will be installed right after launch.
 
         firefoxdriver_path : str, optional, by default GECKODRIVER_PATH
-            You should have the driver for Firefox named as geckodriver.exe under the path GECKODRIVER_PATH.
-            Please update this file when needed.
+            Looks like 'C:\\Users\\USER_NAME\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles'
             You can set the path to the driver manually here.
 
         firefox_profile_user_data : str, optional, by default taken from "FIREFOX_PROFILE_USER_DATA" in the config.json
@@ -521,7 +493,7 @@ class SeleniumFirefox(webdriver.Firefox):
         if incognito:
             options.add_argument("--incognito")
         if profile != False:
-            use_profile = FIREFOX_PROFILE
+            use_profile = "Profile 1"
             if profile != True:
                 use_profile = profile
             options.add_argument("user-data-dir=" + firefox_profile_user_data)
