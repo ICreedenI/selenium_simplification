@@ -510,6 +510,9 @@ class SeleniumChrome(webdriver.Chrome):
     
         • enable_logging (bool, optional) Defaults to True. 
             In an effort to reduce terminal output: "options.add_experimental_option("excludeSwitches", ["enable-logging"])".
+        
+        • log_output (str, optional) Defaults to None. 
+            int representation of STDOUT/DEVNULL, any IO instance or String path to file.
     
     
     Returns:
@@ -554,6 +557,7 @@ class SeleniumChrome(webdriver.Chrome):
         browser_version: str = None,
         enable_automation: bool = True,
         enable_logging: bool = True,
+        log_output: str = None,
     ):
         """
         Creates a new instance of the chrome driver. Starts the service and then creates new instance of chrome driver. You could also use Selenium as is but I think this makes it easier.
@@ -650,6 +654,9 @@ class SeleniumChrome(webdriver.Chrome):
             • enable_logging (bool, optional) Defaults to True. 
                 In an effort to reduce terminal output: "options.add_experimental_option("excludeSwitches", ["enable-logging"])".
         
+            • log_output (str, optional) Defaults to None. 
+                int representation of STDOUT/DEVNULL, any IO instance or String path to file.
+        
         
         Returns:
         
@@ -702,11 +709,11 @@ class SeleniumChrome(webdriver.Chrome):
         for ext in extensions:
             options.add_extension(ext)
         if chromedriver_path:
-            service = Service(chromedriver_path)
+            service = Service(chromedriver_path, log_output=log_output)
         elif isinstance(chromedriver_path, Service):
             service = chromedriver_path
         else:
-            service = Service()
+            service = Service(log_output=log_output)
         if user_agent:
             options.add_argument(user_agent)
         if download_directory:
@@ -1901,6 +1908,7 @@ class SeleniumChromeTor(SeleniumChrome):
         browser_version: str = None,
         enable_automation: bool = True,
         enable_logging: bool = True,
+        log_output: str = None,
     ):
         """
         SeleniumChrome with Tor implementation.
@@ -1966,6 +1974,7 @@ class SeleniumChromeTor(SeleniumChrome):
             browser_version,
             enable_automation,
             enable_logging,
+            log_output,
         )
     
     def quit(self) -> None:
