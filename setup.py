@@ -7,7 +7,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
     long_description = "\n" + fh.read()
 
-VERSION = "0.0.12"
+VERSION = "0.0.13"
 DESCRIPTION = "Make Selenium simple. Using Selenium in a pythonic style without having to google how to do non-trivial stuff."
 
 # Setting up
@@ -27,7 +27,7 @@ setup(
         ]
     },
     include_package_data=True,
-    install_requires=["selenium"],
+    install_requires=["selenium", "colorful_terminal"],
     keywords=["python", "selenium"],
     classifiers=[
         "Development Status :: 1 - Planning",

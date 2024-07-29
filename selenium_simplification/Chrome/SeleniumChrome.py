@@ -21,6 +21,7 @@ from typing import Callable, Iterable
 import requests
 import subprocess
 
+from colorful_terminal import TermAct
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.service import Service
@@ -558,6 +559,7 @@ class SeleniumChrome(webdriver.Chrome):
         enable_automation: bool = True,
         enable_logging: bool = True,
         log_output: str = None,
+        auto_delete_devtools_message: bool = True,
     ):
         """
         Creates a new instance of the chrome driver. Starts the service and then creates new instance of chrome driver. You could also use Selenium as is but I think this makes it easier.
@@ -739,12 +741,17 @@ class SeleniumChrome(webdriver.Chrome):
             options.add_experimental_option("excludeSwitches", ["enable-automation"])
         if enable_logging:
             options.add_experimental_option("excludeSwitches", ["enable-logging"])
+        options.add_argument("--disable-search-engine-choice-screen")
 
         options.add_experimental_option("prefs", prefs)
 
         super().__init__(options=options, service=service)
 
         self.tabs[0] = self.current_window_handle
+        
+        if headless and auto_delete_devtools_message:
+            TermAct.clear_previous_line_action()
+            TermAct.clear_previous_line_action()
 
         def keep_driver_alive(driver):
             def isBrowserAlive(driver: SeleniumChrome):
@@ -1988,7 +1995,12 @@ class SeleniumChromeTor(SeleniumChrome):
 
 
 if __name__ == "__main__":
-    driver = SeleniumChrome(keep_alive=True)
+    print("test")
+    driver = SeleniumChrome(keep_alive=True, headless=True)
     driver.get("https://google.com")
-    sleep(10)
+    sleep(1)
+    driver.quit()
+    driver = SeleniumChrome(keep_alive=True, headless=False)
+    driver.get("https://google.com")
+    sleep(1)
     driver.quit()

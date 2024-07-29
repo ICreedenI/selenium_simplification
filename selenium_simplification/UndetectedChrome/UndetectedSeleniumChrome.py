@@ -32,8 +32,7 @@ import undetected_chromedriver as uc
 
 def get_from_json(path):
     with open(path) as f:
-        data = json.load(f)
-    info = json.loads(data)
+        info = json.loads(f)
     return info
 
 
