@@ -682,6 +682,7 @@ class SeleniumChrome(webdriver.Chrome):
             else:
                 options.add_argument("--headless=new")
             disable_gpu = True
+            window_position = "-2400,-2400"
         if log_level_3:
             options.add_argument("--log-level=3")
         if muted:
@@ -735,6 +736,8 @@ class SeleniumChrome(webdriver.Chrome):
             options.add_experimental_option("useAutomationExtension", False) 
         if disable_web_security:
             options.add_argument(f"--disable-web-security") 
+            options.add_argument("--safebrowsing-disable-download-protection")
+            prefs["safebrowsing.enabled"] = False
         if browser_version:
             options.set_capability("browserVersion", browser_version)
         if enable_automation:

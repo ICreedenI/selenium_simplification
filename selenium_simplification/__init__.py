@@ -17,4 +17,4 @@ from .Firefox.SeleniumFirefox import SeleniumFirefox
 from .UndetectedChrome.UndetectedSeleniumChrome import UndetectedSeleniumChrome
 
 
-__version__ = "0.0.13"
+__version__ = "0.0.14"
